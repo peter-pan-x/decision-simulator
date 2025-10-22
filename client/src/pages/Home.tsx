@@ -17,8 +17,15 @@ export default function Home() {
     setIsAnalyzing(true);
     
     try {
-      const { analyzeDecision } = await import('@/lib/decisionEngine');
-      const analysisResults = await analyzeDecision(data);
+      const { runCompleteAnalysis, convertToLegacyFormat } = await import('@/lib/aiAgents/orchestrator');
+      
+      // 运行多AI协作分析
+      const completeAnalysis = await runCompleteAnalysis(data, (progress) => {
+        console.log(`${progress.stage}: ${progress.message} (${progress.progress}%)`);
+      });
+      
+      // 转换为UI兼容格式
+      const analysisResults = convertToLegacyFormat(completeAnalysis, data);
       setResults(analysisResults);
     } catch (error) {
       console.error('Analysis failed:', error);

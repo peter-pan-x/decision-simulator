@@ -21,7 +21,8 @@ export interface DecisionOption {
 }
 
 export interface DecisionInput {
-  decision: string;
+  question: string; // 改为question以匹配AI Agent类型
+  decision: string; // 保留用于表单
   options: DecisionOption[];
   dimensions: string[];
   timeframe: string;
@@ -87,7 +88,8 @@ export default function DecisionInputForm({ onAnalyze, isAnalyzing = false }: De
       return;
     }
     onAnalyze({
-      decision,
+      question: decision, // 用于AI分析
+      decision, // 用于表单显示
       options,
       dimensions: selectedDimensions,
       timeframe,
