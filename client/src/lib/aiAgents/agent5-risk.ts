@@ -12,7 +12,7 @@ import { USE_MOCK_AI } from '../aiConfig';
 
 /**
  * AI Agent 5: 风险与不确定性分析师
- * 使用 Claude 进行深度风险评估
+ * 使用 Gemini 进行深度风险评估
  */
 
 export async function analyzeRisks(
@@ -24,12 +24,24 @@ export async function analyzeRisks(
     return mockAnalyzeRisks(input, structure, timeline);
   }
 
-  // TODO: 实现真实的Claude API调用
-  const prompt = buildRiskPrompt(input, structure, timeline);
-  // const response = await callClaude(prompt);
-  // return parseRiskResponse(response);
-  
-  return mockAnalyzeRisks(input, structure, timeline);
+  try {
+    const { callGemini, parseJSONResponse } = await import('./apiClients');
+    const prompt = buildRiskPrompt(input, structure, timeline);
+    const systemPrompt = 'You are a risk analysis expert. Respond with valid JSON only.';
+    
+    const response = await callGemini(prompt, systemPrompt);
+    const parsed = parseJSONResponse(response);
+    
+    return {
+      risks: parsed.risks || [],
+      uncertainties: parsed.uncertainties || [],
+      mitigationStrategies: parsed.mitigationStrategies || [],
+      worstCaseScenario: parsed.worstCaseScenario || { description: '', probability: 0, triggers: [], consequences: [] },
+    };
+  } catch (error) {
+    console.error('Gemini API failed, falling back to mock:', error);
+    return mockAnalyzeRisks(input, structure, timeline);
+  }
 }
 
 function buildRiskPrompt(

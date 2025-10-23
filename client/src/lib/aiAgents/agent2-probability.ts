@@ -3,7 +3,7 @@ import { USE_MOCK_AI } from '../aiConfig';
 
 /**
  * AI Agent 2: 概率计算器
- * 使用 Claude 进行贝叶斯推理和概率计算
+ * 使用 Gemini 进行贝叶斯推理和概率计算
  */
 
 export async function calculateProbabilities(
@@ -14,12 +14,22 @@ export async function calculateProbabilities(
     return mockCalculateProbabilities(input, structure);
   }
 
-  // TODO: 实现真实的Claude API调用
-  const prompt = buildProbabilityPrompt(input, structure);
-  // const response = await callClaude(prompt);
-  // return parseProbabilityResponse(response);
-  
-  return mockCalculateProbabilities(input, structure);
+  try {
+    const { callGemini, parseJSONResponse } = await import('./apiClients');
+    const prompt = buildProbabilityPrompt(input, structure);
+    const systemPrompt = 'You are a probability and Bayesian reasoning expert. Respond with valid JSON only.';
+    
+    const response = await callGemini(prompt, systemPrompt);
+    const parsed = parseJSONResponse(response);
+    
+    return {
+      paths: parsed.paths || [],
+      distributions: parsed.distributions || [],
+    };
+  } catch (error) {
+    console.error('Gemini API failed, falling back to mock:', error);
+    return mockCalculateProbabilities(input, structure);
+  }
 }
 
 function buildProbabilityPrompt(input: DecisionInput, structure: DecisionStructure): string {

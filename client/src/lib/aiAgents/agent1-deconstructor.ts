@@ -13,12 +13,24 @@ export async function analyzeDecisionStructure(
     return mockAnalyzeDecisionStructure(input);
   }
 
-  // TODO: 实现真实的OpenAI API调用
-  const prompt = buildDeconstructorPrompt(input);
-  // const response = await callOpenAI(prompt);
-  // return parseDeconstructorResponse(response);
-  
-  return mockAnalyzeDecisionStructure(input);
+  try {
+    const { callOpenAI, parseJSONResponse } = await import('./apiClients');
+    const prompt = buildDeconstructorPrompt(input);
+    const systemPrompt = 'You are an expert decision analyst. Always respond with valid JSON only, no additional text.';
+    
+    const response = await callOpenAI(prompt, systemPrompt);
+    const parsed = parseJSONResponse(response);
+    
+    return {
+      variables: parsed.variables || [],
+      causalLinks: parsed.causalLinks || [],
+      assumptions: parsed.assumptions || [],
+      constraints: parsed.constraints || [],
+    };
+  } catch (error) {
+    console.error('OpenAI API failed, falling back to mock:', error);
+    return mockAnalyzeDecisionStructure(input);
+  }
 }
 
 function buildDeconstructorPrompt(input: DecisionInput): string {

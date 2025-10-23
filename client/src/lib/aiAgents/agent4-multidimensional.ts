@@ -23,12 +23,23 @@ export async function analyzeMultiDimensional(
     return mockAnalyzeMultiDimensional(input, structure, timeline);
   }
 
-  // TODO: 实现真实的Gemini API调用
-  const prompt = buildMultiDimensionalPrompt(input, structure, timeline);
-  // const response = await callGemini(prompt);
-  // return parseMultiDimensionalResponse(response);
-  
-  return mockAnalyzeMultiDimensional(input, structure, timeline);
+  try {
+    const { callGemini, parseJSONResponse } = await import('./apiClients');
+    const prompt = buildMultiDimensionalPrompt(input, structure, timeline);
+    const systemPrompt = 'You are a multi-dimensional decision analysis expert. Respond with valid JSON only.';
+    
+    const response = await callGemini(prompt, systemPrompt);
+    const parsed = parseJSONResponse(response);
+    
+    return {
+      dimensions: parsed.dimensions || [],
+      tradeoffs: parsed.tradeoffs || [],
+      synergies: parsed.synergies || [],
+    };
+  } catch (error) {
+    console.error('Gemini API failed, falling back to mock:', error);
+    return mockAnalyzeMultiDimensional(input, structure, timeline);
+  }
 }
 
 function buildMultiDimensionalPrompt(

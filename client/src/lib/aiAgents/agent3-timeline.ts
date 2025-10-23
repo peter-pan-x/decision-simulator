@@ -24,12 +24,23 @@ export async function simulateTimeline(
     return mockSimulateTimeline(input, structure, probabilities);
   }
 
-  // TODO: 实现真实的OpenAI API调用
-  const prompt = buildTimelinePrompt(input, structure, probabilities);
-  // const response = await callOpenAI(prompt);
-  // return parseTimelineResponse(response);
-  
-  return mockSimulateTimeline(input, structure, probabilities);
+  try {
+    const { callOpenAI, parseJSONResponse } = await import('./apiClients');
+    const prompt = buildTimelinePrompt(input, structure, probabilities);
+    const systemPrompt = 'You are a future scenario expert. Respond with valid JSON only.';
+    
+    const response = await callOpenAI(prompt, systemPrompt);
+    const parsed = parseJSONResponse(response);
+    
+    return {
+      timelines: parsed.timelines || [],
+      keyMilestones: parsed.keyMilestones || [],
+      turningPoints: parsed.turningPoints || [],
+    };
+  } catch (error) {
+    console.error('OpenAI API failed, falling back to mock:', error);
+    return mockSimulateTimeline(input, structure, probabilities);
+  }
 }
 
 function buildTimelinePrompt(

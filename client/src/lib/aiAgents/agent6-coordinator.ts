@@ -28,12 +28,27 @@ export async function generateFinalReport(
     return mockGenerateFinalReport(input, structure, probabilities, timeline, multiDimensional, risks);
   }
 
-  // TODO: 实现真实的OpenAI API调用
-  const prompt = buildCoordinatorPrompt(input, structure, probabilities, timeline, multiDimensional, risks);
-  // const response = await callOpenAI(prompt);
-  // return parseCoordinatorResponse(response);
-  
-  return mockGenerateFinalReport(input, structure, probabilities, timeline, multiDimensional, risks);
+  try {
+    const { callOpenAI, parseJSONResponse } = await import('./apiClients');
+    const prompt = buildCoordinatorPrompt(input, structure, probabilities, timeline, multiDimensional, risks);
+    const systemPrompt = 'You are a master decision advisor. Synthesize all analyses and respond with valid JSON only.';
+    
+    const response = await callOpenAI(prompt, systemPrompt);
+    const parsed = parseJSONResponse(response);
+    
+    return {
+      summary: parsed.summary || '',
+      optionRankings: parsed.optionRankings || [],
+      recommendation: parsed.recommendation || '',
+      reasoning: parsed.reasoning || [],
+      keyInsights: parsed.keyInsights || [],
+      actionPlan: parsed.actionPlan || [],
+      confidenceLevel: parsed.confidenceLevel || 0.7,
+    };
+  } catch (error) {
+    console.error('OpenAI API failed, falling back to mock:', error);
+    return mockGenerateFinalReport(input, structure, probabilities, timeline, multiDimensional, risks);
+  }
 }
 
 function buildCoordinatorPrompt(
