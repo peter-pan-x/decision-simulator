@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import DecisionInputForm, { DecisionInput } from '@/components/DecisionInput';
 import AnalysisResults, { OptionAnalysis } from '@/components/AnalysisResults';
+import AnalysisProgress, { AnalysisStep } from '@/components/AnalysisProgress';
 import { Brain, Sparkles, TrendingUp, Eye } from 'lucide-react';
 
 export default function Home() {
@@ -12,16 +13,56 @@ export default function Home() {
   const [showInput, setShowInput] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [results, setResults] = useState<OptionAnalysis[] | null>(null);
+  const [analysisSteps, setAnalysisSteps] = useState<AnalysisStep[]>([]);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [overallProgress, setOverallProgress] = useState(0);
 
   const handleAnalyze = async (data: DecisionInput) => {
     setIsAnalyzing(true);
+    
+    // 初始化分析步骤
+    const steps: AnalysisStep[] = [
+      { id: '1', name: 'Decision Deconstructor', status: 'pending', progress: 0 },
+      { id: '2', name: 'Probability Calculator', status: 'pending', progress: 0 },
+      { id: '3', name: 'Timeline Simulator', status: 'pending', progress: 0 },
+      { id: '4', name: 'Multi-dimensional Evaluator', status: 'pending', progress: 0 },
+      { id: '5', name: 'Risk Analyst', status: 'pending', progress: 0 },
+      { id: '6', name: 'Decision Coordinator', status: 'pending', progress: 0 },
+    ];
+    setAnalysisSteps(steps);
+    setCurrentStep(0);
+    setOverallProgress(0);
     
     try {
       const { runCompleteAnalysis, convertToLegacyFormat } = await import('@/lib/aiAgents/orchestrator');
       
       // 运行多AI协作分析
       const completeAnalysis = await runCompleteAnalysis(data, (progress) => {
-        console.log(`${progress.stage}: ${progress.message} (${progress.progress}%)`);
+        // 更新进度
+        setOverallProgress(progress.progress);
+        
+        // 根据阶段更新步骤状态
+        const stageToStep: { [key: string]: number } = {
+          'deconstruction': 0,
+          'probability': 1,
+          'timeline': 2,
+          'multidimensional': 3,
+          'risk': 4,
+          'integration': 5,
+        };
+        
+        const stepIndex = stageToStep[progress.stage];
+        if (stepIndex !== undefined) {
+          setCurrentStep(stepIndex);
+          setAnalysisSteps(prev => prev.map((step, idx) => {
+            if (idx < stepIndex) {
+              return { ...step, status: 'completed', progress: 100 };
+            } else if (idx === stepIndex) {
+              return { ...step, status: 'running', progress: progress.progress, detail: progress.message };
+            }
+            return step;
+          }));
+        }
       });
       
       // 转换为UI兼容格式
@@ -71,7 +112,15 @@ export default function Home() {
           </div>
         </header>
         <main className="container py-8 max-w-3xl">
-          <DecisionInputForm onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
+          {isAnalyzing ? (
+            <AnalysisProgress 
+              steps={analysisSteps} 
+              currentStep={currentStep} 
+              overallProgress={overallProgress} 
+            />
+          ) : (
+            <DecisionInputForm onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
+          )}
         </main>
       </div>
     );

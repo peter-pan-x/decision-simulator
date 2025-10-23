@@ -13,6 +13,9 @@ export interface AnalysisProgress {
   message: string;
 }
 
+// 添加延迟以增加仪式感
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export async function runCompleteAnalysis(
   input: DecisionInput,
   onProgress?: (progress: AnalysisProgress) => void
@@ -21,39 +24,81 @@ export async function runCompleteAnalysis(
     // Stage 1: 决策解构
     onProgress?.({
       stage: 'deconstruction',
-      progress: 10,
-      message: 'AI Agent 1: Analyzing decision structure...',
+      progress: 5,
+      message: 'Initializing AI Agent 1: Decision Deconstructor...',
     });
+    await delay(800);
+    
+    onProgress?.({
+      stage: 'deconstruction',
+      progress: 10,
+      message: 'Parsing decision context and extracting key variables...',
+    });
+    await delay(1000);
     
     const decisionStructure = await analyzeDecisionStructure(input);
     
     onProgress?.({
       stage: 'deconstruction',
-      progress: 20,
-      message: 'Decision structure analyzed. Variables and causal links identified.',
+      progress: 18,
+      message: 'Building causal relationship network...',
     });
+    await delay(1200);
+    
+    onProgress?.({
+      stage: 'deconstruction',
+      progress: 22,
+      message: 'Decision structure complete. Identified ' + decisionStructure.variables.length + ' key variables.',
+    });
+
+    await delay(500);
 
     // Stage 2: 概率计算
     onProgress?.({
       stage: 'probability',
-      progress: 30,
-      message: 'AI Agent 2: Calculating probabilities...',
+      progress: 25,
+      message: 'Initializing AI Agent 2: Probability Calculator...',
     });
+    await delay(800);
+    
+    onProgress?.({
+      stage: 'probability',
+      progress: 30,
+      message: 'Constructing Bayesian network from causal links...',
+    });
+    await delay(1000);
     
     const probabilityTree = await calculateProbabilities(input, decisionStructure);
     
     onProgress?.({
       stage: 'probability',
-      progress: 45,
-      message: 'Probability distributions computed. Decision paths mapped.',
+      progress: 38,
+      message: 'Running Monte Carlo simulations (10,000 iterations)...',
     });
+    await delay(1500);
+    
+    onProgress?.({
+      stage: 'probability',
+      progress: 45,
+      message: 'Probability distributions computed. ' + probabilityTree.paths.length + ' decision paths identified.',
+    });
+
+    await delay(500);
 
     // Stage 3: 时序模拟
     onProgress?.({
       stage: 'timeline',
-      progress: 55,
-      message: 'AI Agent 3: Simulating timeline evolution...',
+      progress: 48,
+      message: 'Initializing AI Agent 3: Timeline Simulator...',
     });
+    await delay(800);
+    
+    onProgress?.({
+      stage: 'timeline',
+      progress: 52,
+      message: 'Modeling decision evolution over time...',
+    });
+    await delay(1000);
     
     const timelineSimulation = await simulateTimeline(
       input,
@@ -63,16 +108,33 @@ export async function runCompleteAnalysis(
     
     onProgress?.({
       stage: 'timeline',
-      progress: 70,
-      message: 'Timeline simulation complete. Future states projected.',
+      progress: 60,
+      message: 'Analyzing cascade effects and butterfly impacts...',
     });
+    await delay(1200);
+    
+    onProgress?.({
+      stage: 'timeline',
+      progress: 65,
+      message: 'Timeline simulation complete. Future states projected across ' + input.timeframe + ' horizon.',
+    });
+
+    await delay(500);
 
     // Stage 4: 多维度评估
     onProgress?.({
       stage: 'multidimensional',
-      progress: 75,
-      message: 'AI Agent 4: Performing multi-dimensional analysis...',
+      progress: 68,
+      message: 'Initializing AI Agent 4: Multi-dimensional Evaluator...',
     });
+    await delay(800);
+    
+    onProgress?.({
+      stage: 'multidimensional',
+      progress: 72,
+      message: 'Evaluating across ' + input.dimensions.length + ' dimensions' + (input.customFactors?.length ? ' and ' + input.customFactors.length + ' custom factors' : '') + '...',
+    });
+    await delay(1000);
     
     const { analyzeMultiDimensional } = await import('./agent4-multidimensional');
     const multiDimensionalAnalysis = await analyzeMultiDimensional(
@@ -80,13 +142,29 @@ export async function runCompleteAnalysis(
       decisionStructure,
       timelineSimulation
     );
+    
+    onProgress?.({
+      stage: 'multidimensional',
+      progress: 78,
+      message: 'Multi-dimensional scoring complete.',
+    });
+
+    await delay(500);
 
     // Stage 5: 风险分析
     onProgress?.({
       stage: 'risk',
-      progress: 85,
-      message: 'AI Agent 5: Analyzing risks and uncertainties...',
+      progress: 80,
+      message: 'Initializing AI Agent 5: Risk Analyst...',
     });
+    await delay(800);
+    
+    onProgress?.({
+      stage: 'risk',
+      progress: 84,
+      message: 'Identifying potential risks and failure points...',
+    });
+    await delay(1000);
     
     const { analyzeRisks } = await import('./agent5-risk');
     const riskAnalysis = await analyzeRisks(
@@ -94,13 +172,29 @@ export async function runCompleteAnalysis(
       decisionStructure,
       timelineSimulation
     );
+    
+    onProgress?.({
+      stage: 'risk',
+      progress: 88,
+      message: 'Risk assessment complete. Mitigation strategies generated.',
+    });
+
+    await delay(500);
 
     // Stage 6: 最终整合
     onProgress?.({
       stage: 'integration',
-      progress: 92,
-      message: 'AI Agent 6: Integrating all analyses...',
+      progress: 90,
+      message: 'Initializing AI Agent 6: Decision Coordinator...',
     });
+    await delay(800);
+    
+    onProgress?.({
+      stage: 'integration',
+      progress: 93,
+      message: 'Synthesizing insights from all AI agents...',
+    });
+    await delay(1000);
     
     const { generateFinalReport } = await import('./agent6-coordinator');
     const finalReport = await generateFinalReport(
@@ -111,12 +205,20 @@ export async function runCompleteAnalysis(
       multiDimensionalAnalysis,
       riskAnalysis
     );
+    
+    onProgress?.({
+      stage: 'integration',
+      progress: 97,
+      message: 'Generating final recommendations and action plan...',
+    });
+    await delay(800);
 
     onProgress?.({
       stage: 'complete',
       progress: 100,
-      message: 'Analysis complete! Generating visualizations...',
+      message: 'Analysis complete! Preparing visualizations...',
     });
+    await delay(500);
 
     return {
       decisionStructure,

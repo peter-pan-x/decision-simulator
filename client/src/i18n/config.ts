@@ -49,8 +49,20 @@ const resources = {
           balanced: 'Balanced',
           aggressive: 'Aggressive',
         },
+        customFactorsTitle: 'Other Important Factors',
+        customFactorsDescription: 'Please enter other important factors you think should be considered. This will help AI analyze your decision more comprehensively.',
+        customFactorPlaceholder: 'E.g., Distance from family, Company culture, Industry prospects...',
+        addCustomFactor: 'Add Factor',
         analyze: 'Analyze Decision',
         analyzing: 'Analyzing...',
+      },
+      
+      // Progress
+      progress: {
+        analyzing: 'Analyzing Your Decision',
+        description: 'Our AI agents are working together to provide comprehensive analysis...',
+        overall: 'Overall Progress',
+        estimatedTime: 'Estimated time: 30-60 seconds',
       },
       
       // Results
@@ -135,8 +147,20 @@ const resources = {
           balanced: '平衡型',
           aggressive: '激进型',
         },
+        customFactorsTitle: '其他重要因素',
+        customFactorsDescription: '请输入您认为需要考虑的其他重要因素，这将帮助AI更全面地分析您的决策。',
+        customFactorPlaceholder: '例如：家庭距离、公司文化、行业前景...',
+        addCustomFactor: '添加因素',
         analyze: '分析决策',
         analyzing: '分析中...',
+      },
+      
+      // 进度
+      progress: {
+        analyzing: '正在分析您的决策',
+        description: '我们的AI代理正在协同工作，为您提供全面的分析...',
+        overall: '总体进度',
+        estimatedTime: '预计时间：30-60秒',
       },
       
       // 结果

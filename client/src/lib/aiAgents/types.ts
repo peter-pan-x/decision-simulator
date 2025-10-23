@@ -4,6 +4,7 @@ export interface DecisionInput {
   question: string;
   options: Array<{ description: string }>;
   dimensions: string[];
+  customFactors?: string[]; // 用户自定义的其他重要因素
   timeframe: string;
   riskProfile: string;
 }

@@ -25,6 +25,7 @@ export interface DecisionInput {
   decision: string; // 保留用于表单
   options: DecisionOption[];
   dimensions: string[];
+  customFactors: string[]; // 用户自定义的其他重要因素
   timeframe: string;
   riskProfile: string;
 }
@@ -57,6 +58,7 @@ export default function DecisionInputForm({ onAnalyze, isAnalyzing = false }: De
   ]);
   const [timeframe, setTimeframe] = useState('medium');
   const [riskProfile, setRiskProfile] = useState('balanced');
+  const [customFactors, setCustomFactors] = useState<string[]>(['']);
 
   const addOption = () => {
     if (options.length < 5) {
@@ -82,6 +84,22 @@ export default function DecisionInputForm({ onAnalyze, isAnalyzing = false }: De
     );
   };
 
+  const addCustomFactor = () => {
+    if (customFactors.length < 5) {
+      setCustomFactors([...customFactors, '']);
+    }
+  };
+
+  const removeCustomFactor = (index: number) => {
+    if (customFactors.length > 1) {
+      setCustomFactors(customFactors.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateCustomFactor = (index: number, value: string) => {
+    setCustomFactors(customFactors.map((f, i) => (i === index ? value : f)));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!decision.trim() || options.some((opt) => !opt.description.trim())) {
@@ -92,6 +110,7 @@ export default function DecisionInputForm({ onAnalyze, isAnalyzing = false }: De
       decision, // 用于表单显示
       options,
       dimensions: selectedDimensions,
+      customFactors: customFactors.filter(f => f.trim() !== ''), // 过滤空值
       timeframe,
       riskProfile,
     });
@@ -178,6 +197,51 @@ export default function DecisionInputForm({ onAnalyze, isAnalyzing = false }: De
                   </label>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Custom Factors */}
+          <div className="space-y-3">
+            <Label>{t('input.customFactorsTitle')}</Label>
+            <p className="text-sm text-muted-foreground">
+              {t('input.customFactorsDescription')}
+            </p>
+            <div className="space-y-2">
+              {customFactors.map((factor, index) => (
+                <div key={index} className="flex gap-2">
+                  <Input
+                    placeholder={t('input.customFactorPlaceholder', { number: index + 1 })}
+                    value={factor}
+                    onChange={(e) => updateCustomFactor(index, e.target.value)}
+                    disabled={isAnalyzing}
+                    className="flex-1"
+                  />
+                  {customFactors.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => removeCustomFactor(index)}
+                      disabled={isAnalyzing}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              {customFactors.length < 5 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addCustomFactor}
+                  disabled={isAnalyzing}
+                  className="w-full"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  {t('input.addCustomFactor')}
+                </Button>
+              )}
             </div>
           </div>
 
