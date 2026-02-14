@@ -1,5 +1,8 @@
 // AI API配置
 export const AI_CONFIG = {
+  useMockAI: import.meta.env.VITE_USE_MOCK_AI === 'true',
+  enableBrowserAI: import.meta.env.VITE_ENABLE_BROWSER_AI === 'true',
+  proxyBaseUrl: import.meta.env.VITE_AI_PROXY_URL || '/api/ai',
   openai: {
     apiKey: import.meta.env.VITE_OPENAI_API_KEY || 'mock-openai-key',
     model: 'gpt-4-turbo-preview',
@@ -17,9 +20,8 @@ export const AI_CONFIG = {
   },
 };
 
-// 判断是否使用模拟模式
-export const USE_MOCK_AI = 
-  AI_CONFIG.openai.apiKey === 'mock-openai-key' ||
-  AI_CONFIG.claude.apiKey === 'mock-claude-key' ||
-  AI_CONFIG.gemini.apiKey === 'mock-gemini-key';
+// 判断是否使用模拟模式（仅在显式开关，或核心Provider都未配置时启用）
+const hasOpenAIKey = AI_CONFIG.openai.apiKey !== 'mock-openai-key';
+const hasGeminiKey = AI_CONFIG.gemini.apiKey !== 'mock-gemini-key';
 
+export const USE_MOCK_AI = AI_CONFIG.useMockAI || (!hasOpenAIKey && !hasGeminiKey);
