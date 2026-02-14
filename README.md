@@ -78,6 +78,12 @@ cp .env.example .env
 
 # Start development server / 启动开发服务器
 pnpm dev
+
+# (Recommended for secure AI proxy in development)
+# Terminal 1: frontend dev server
+pnpm dev
+# Terminal 2: AI proxy server
+pnpm dev:server
 ```
 
 ### Environment Variables / 环境变量
@@ -87,9 +93,23 @@ Create a `.env` file in the root directory:
 在根目录创建`.env`文件:
 
 ```bash
+# Recommended (server-side, safer)
+OPENAI_API_KEY=your_openai_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# AI runtime behavior
+VITE_USE_MOCK_AI=false
+VITE_ENABLE_BROWSER_AI=false
+VITE_AI_PROXY_URL=/api/ai
+
+# Optional (browser direct mode, NOT recommended for production)
 VITE_OPENAI_API_KEY=your_openai_api_key_here
 VITE_GEMINI_API_KEY=your_gemini_api_key_here
 ```
+
+> Security note / 安全提示：
+> - Keep `VITE_ENABLE_BROWSER_AI=false` in production to avoid exposing API keys in browser bundles.
+> - Prefer server-side keys (`OPENAI_API_KEY`, `GEMINI_API_KEY`) with the built-in proxy endpoints.
 
 ---
 
