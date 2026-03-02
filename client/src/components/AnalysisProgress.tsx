@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEffect, useState, useRef } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle2, Loader2, Circle, MessageSquare, ShieldAlert, TrendingUp, Brain } from 'lucide-react';
+import { CheckCircle2, Loader2, Circle, ShieldAlert, TrendingUp, Brain, Cpu, Network, Database, Zap } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DebateLog } from '@/lib/aiAgents/types';
 
@@ -23,6 +23,7 @@ interface AnalysisProgressProps {
 export default function AnalysisProgress({ steps, currentStep, overallProgress, logs }: AnalysisProgressProps) {
   const { t } = useTranslation();
   const [dots, setDots] = useState('');
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   // 动画效果
   useEffect(() => {
@@ -32,121 +33,162 @@ export default function AnalysisProgress({ steps, currentStep, overallProgress, 
     return () => clearInterval(interval);
   }, []);
 
+  // 自动滚动日志
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [logs]);
+
   return (
-    <Card className="w-full max-w-3xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Loader2 className="h-5 w-5 animate-spin text-primary" />
-          {t('progress.analyzing')}
-        </CardTitle>
-        <p className="text-sm text-muted-foreground mt-2">
-          {t('progress.description')}
-        </p>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Overall Progress */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="font-medium">{t('progress.overall')}</span>
-            <span className="text-muted-foreground">{Math.round(overallProgress)}%</span>
-          </div>
-          <Progress value={overallProgress} className="h-2" />
+    <div className="space-y-8 animate-in fade-in duration-700">
+      <div className="text-center space-y-2">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest mb-2">
+          <Cpu className="h-3 w-3 animate-pulse" />
+          Neural Engine Active
         </div>
+        <h2 className="text-3xl font-bold tracking-tight">Strategic Simulation in Progress</h2>
+        <p className="text-muted-foreground">Orchestrating multiple AI agents for deep causal analysis</p>
+      </div>
 
-        {/* Individual Steps */}
-        <div className="space-y-4">
-          {steps.map((step, index) => (
-            <div
-              key={step.id}
-              className={`flex items-start gap-3 p-3 rounded-lg transition-all ${
-                step.status === 'running'
-                  ? 'bg-primary/5 border border-primary/20'
-                  : step.status === 'completed'
-                  ? 'bg-green-50 dark:bg-green-950/20'
-                  : 'bg-muted/30'
-              }`}
-            >
-              {/* Icon */}
-              <div className="mt-0.5">
-                {step.status === 'completed' ? (
-                  <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
-                ) : step.status === 'running' ? (
-                  <Loader2 className="h-5 w-5 text-primary animate-spin" />
-                ) : (
-                  <Circle className="h-5 w-5 text-muted-foreground/40" />
-                )}
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className={`font-medium ${
+      <div className="grid md:grid-cols-3 gap-8">
+        {/* Left Column: Steps */}
+        <Card className="md:col-span-1 border-primary/10 shadow-sm">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+              <Network className="h-4 w-4 text-primary" />
+              Pipeline Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {steps.map((step, index) => (
+              <div
+                key={step.id}
+                className={`flex items-start gap-3 p-2 rounded-md transition-all ${
+                  step.status === 'running'
+                    ? 'bg-primary/5 ring-1 ring-primary/20'
+                    : ''
+                }`}
+              >
+                <div className="mt-0.5">
+                  {step.status === 'completed' ? (
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  ) : step.status === 'running' ? (
+                    <Loader2 className="h-4 w-4 text-primary animate-spin" />
+                  ) : (
+                    <Circle className="h-4 w-4 text-muted-foreground/30" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-xs font-semibold truncate ${
                     step.status === 'running' ? 'text-primary' : 
-                    step.status === 'completed' ? 'text-green-700 dark:text-green-300' : 
+                    step.status === 'completed' ? 'text-foreground' : 
                     'text-muted-foreground'
                   }`}>
                     {step.name}
-                  </span>
+                  </p>
                   {step.status === 'running' && (
-                    <span className="text-xs text-muted-foreground">
-                      {Math.round(step.progress)}%
-                    </span>
+                    <div className="mt-1.5">
+                      <Progress value={step.progress} className="h-1" />
+                    </div>
                   )}
                 </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
 
-                {/* Step Progress Bar */}
-                {step.status === 'running' && (
-                  <Progress value={step.progress} className="h-1.5" />
-                )}
+        {/* Right Column: Live Reasoning & Overall */}
+        <div className="md:col-span-2 space-y-6">
+          {/* Overall Progress Card */}
+          <Card className="border-primary/10 shadow-sm bg-primary/5">
+            <CardContent className="pt-6">
+              <div className="flex justify-between items-end mb-2">
+                <div className="space-y-1">
+                  <p className="text-xs font-bold uppercase tracking-widest text-primary">Overall Completion</p>
+                  <p className="text-2xl font-black">{Math.round(overallProgress)}%</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-muted-foreground uppercase">Estimated Time Remaining</p>
+                  <p className="text-sm font-mono font-bold">~{Math.max(0, Math.round((100 - overallProgress) / 2))}s</p>
+                </div>
+              </div>
+              <Progress value={overallProgress} className="h-3 bg-primary/10" />
+            </CardContent>
+          </Card>
 
-                {/* Detail */}
-                {step.detail && step.status === 'running' && (
-                  <p className="text-xs text-muted-foreground">
-                    {step.detail}{dots}
-                  </p>
+          {/* Live Reasoning Logs */}
+          <Card className="border-primary/10 shadow-sm overflow-hidden">
+            <CardHeader className="pb-2 border-b bg-muted/30">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+                  <Brain className="h-4 w-4 text-primary" />
+                  Live Multi-Agent Reasoning
+                </CardTitle>
+                <div className="flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase">Real-time Stream</span>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div 
+                ref={scrollRef}
+                className="h-[300px] overflow-y-auto p-4 space-y-4 font-mono text-[11px] leading-relaxed custom-scrollbar bg-slate-950 text-slate-300"
+              >
+                {logs && logs.length > 0 ? (
+                  logs.map((log, i) => (
+                    <div key={i} className="space-y-1 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                      <div className="flex items-center gap-2">
+                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${
+                          log.role === 'optimist' ? 'bg-green-900/50 text-green-400 border border-green-700/50' :
+                          log.role === 'cynic' ? 'bg-red-900/50 text-red-400 border border-red-700/50' :
+                          log.role === 'synthesizer' ? 'bg-blue-900/50 text-blue-400 border border-blue-700/50' :
+                          'bg-slate-800 text-slate-400 border border-slate-700'
+                        }`}>
+                          {log.agent}
+                        </span>
+                        <span className="text-[9px] text-slate-500">[{new Date(log.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}]</span>
+                      </div>
+                      <p className="pl-2 border-l border-slate-800 ml-1 py-1">
+                        <span className="text-primary mr-1">›</span>
+                        {log.message}
+                      </p>
+                      {log.thoughtProcess && (
+                        <p className="pl-2 ml-1 text-slate-500 italic text-[10px]">
+                          // {log.thoughtProcess}{dots}
+                        </p>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center text-slate-600 space-y-3">
+                    <Database className="h-8 w-8 animate-pulse" />
+                    <p className="uppercase tracking-widest text-[10px]">Initializing Knowledge Base...</p>
+                  </div>
                 )}
               </div>
-            </div>
-          ))}
-        </div>
+            </CardContent>
+          </Card>
 
-        {/* Debate Logs */}
-        {logs && logs.length > 0 && (
-          <div className="space-y-3 pt-4 border-t">
-            <h4 className="text-sm font-semibold flex items-center gap-2">
-              <Brain className="h-4 w-4 text-primary" />
-              Multi-Agent Dialectical Reasoning
-            </h4>
-            <div className="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-              {logs.map((log, i) => (
-                <div key={i} className="text-xs p-2 rounded bg-muted/50 border-l-2 border-primary/30 animate-in fade-in slide-in-from-left-2">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="font-bold flex items-center gap-1">
-                      {log.role === 'optimist' && <TrendingUp className="h-3 w-3 text-green-500" />}
-                      {log.role === 'cynic' && <ShieldAlert className="h-3 w-3 text-red-500" />}
-                      {log.role === 'synthesizer' && <Brain className="h-3 w-3 text-blue-500" />}
-                      {log.agent}
-                    </span>
-                    <span className="text-[10px] opacity-50">{new Date(log.timestamp).toLocaleTimeString()}</span>
-                  </div>
-                  <p className="leading-relaxed">{log.message}</p>
-                  {log.thoughtProcess && (
-                    <p className="mt-1 italic opacity-70 border-t border-primary/10 pt-1">
-                      Thinking: {log.thoughtProcess}
-                    </p>
-                  )}
-                </div>
-              ))}
+          {/* System Info */}
+          <div className="flex items-center justify-between px-2">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1.5">
+                <Zap className="h-3 w-3 text-yellow-500" />
+                <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-tighter">High-Compute Mode</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <ShieldAlert className="h-3 w-3 text-blue-500" />
+                <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-tighter">Encrypted Session</span>
+              </div>
             </div>
+            <p className="text-[9px] font-mono text-muted-foreground italic">
+              {steps[currentStep]?.detail || 'Processing neural weights'}{dots}
+            </p>
           </div>
-        )}
-
-        {/* Estimated Time */}
-        <div className="text-center text-sm text-muted-foreground pt-4 border-t">
-          {t('progress.estimatedTime')}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
-

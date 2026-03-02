@@ -2,7 +2,7 @@
 
 export interface DecisionInput {
   question: string;
-  options: Array<{ description: string }>;
+  options: Array<{ id: string; description: string }>;
   dimensions: string[];
   customFactors?: string[]; // 用户自定义的其他重要因素
   timeframe: string;

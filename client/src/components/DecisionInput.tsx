@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,7 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, X, Sparkles } from 'lucide-react';
+import { Plus, X, Sparkles, Info, Target, Shield, Clock, Layers } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export interface DecisionOption {
   id: string;
@@ -21,11 +22,11 @@ export interface DecisionOption {
 }
 
 export interface DecisionInput {
-  question: string; // 改为question以匹配AI Agent类型
-  decision: string; // 保留用于表单
+  question: string;
+  decision: string;
   options: DecisionOption[];
   dimensions: string[];
-  customFactors: string[]; // 用户自定义的其他重要因素
+  customFactors: string[];
   timeframe: string;
   riskProfile: string;
 }
@@ -106,11 +107,11 @@ export default function DecisionInputForm({ onAnalyze, isAnalyzing = false }: De
       return;
     }
     onAnalyze({
-      question: decision, // 用于AI分析
-      decision, // 用于表单显示
+      question: decision,
+      decision,
       options,
       dimensions: selectedDimensions,
-      customFactors: customFactors.filter(f => f.trim() !== ''), // 过滤空值
+      customFactors: customFactors.filter(f => f.trim() !== ''),
       timeframe,
       riskProfile,
     });
@@ -120,168 +121,257 @@ export default function DecisionInputForm({ onAnalyze, isAnalyzing = false }: De
     decision.trim() && options.every((opt) => opt.description.trim()) && selectedDimensions.length > 0;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('input.title')}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Decision Description */}
-          <div className="space-y-2">
-            <Label htmlFor="decision">{t('input.decisionLabel')}</Label>
-            <Textarea
-              id="decision"
-              placeholder={t('input.decisionPlaceholder')}
-              value={decision}
-              onChange={(e) => setDecision(e.target.value)}
-              className="min-h-24"
-              disabled={isAnalyzing}
-            />
-          </div>
+    <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="space-y-2 text-center mb-8">
+        <h2 className="text-3xl font-bold tracking-tight">Strategic Input</h2>
+        <p className="text-muted-foreground">Define your decision parameters for deep AI simulation</p>
+      </div>
 
-          {/* Options */}
-          <div className="space-y-3">
-            <Label>{t('input.optionsTitle')}</Label>
-            {options.map((option, index) => (
-              <div key={option.id} className="flex gap-2">
-                <Input
-                  placeholder={`${t('input.optionPlaceholder')} ${index + 1}`}
-                  value={option.description}
-                  onChange={(e) => updateOption(option.id, e.target.value)}
-                  disabled={isAnalyzing}
-                />
-                {options.length > 2 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeOption(option.id)}
-                    disabled={isAnalyzing}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            ))}
-            {options.length < 5 && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={addOption}
+      <div className="grid gap-8">
+        {/* Section 1: Core Decision */}
+        <Card className="border-primary/10 shadow-sm">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-2 text-primary mb-1">
+              <Target className="h-5 w-5" />
+              <span className="text-xs font-bold uppercase tracking-wider">Phase 1</span>
+            </div>
+            <CardTitle>Core Decision & Options</CardTitle>
+            <CardDescription>What is the primary choice you are facing?</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="decision" className="text-sm font-semibold">Decision Description</Label>
+              <Textarea
+                id="decision"
+                placeholder="e.g., Should I leave my stable corporate job to start a FinTech startup?"
+                value={decision}
+                onChange={(e) => setDecision(e.target.value)}
+                className="min-h-24 resize-none focus:ring-primary"
                 disabled={isAnalyzing}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                {t('input.addOption')}
-              </Button>
-            )}
-          </div>
+              />
+            </div>
 
-          {/* Dimensions */}
-          <div className="space-y-3">
-            <Label>{t('input.dimensionsTitle')}</Label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-semibold">Options to Compare</Label>
+                <span className="text-[10px] text-muted-foreground uppercase">Min 2, Max 5</span>
+              </div>
+              <div className="space-y-3">
+                {options.map((option, index) => (
+                  <div key={option.id} className="flex gap-2 group">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border bg-muted/50 text-xs font-bold">
+                      {index + 1}
+                    </div>
+                    <Input
+                      placeholder={`Option ${index + 1} description...`}
+                      value={option.description}
+                      onChange={(e) => updateOption(option.id, e.target.value)}
+                      disabled={isAnalyzing}
+                      className="focus:ring-primary"
+                    />
+                    {options.length > 2 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeOption(option.id)}
+                        disabled={isAnalyzing}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="h-4 w-4 text-destructive" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {options.length < 5 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addOption}
+                  disabled={isAnalyzing}
+                  className="w-full border-dashed"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Comparison Option
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Section 2: Analysis Dimensions */}
+        <Card className="border-primary/10 shadow-sm">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-2 text-primary mb-1">
+              <Layers className="h-5 w-5" />
+              <span className="text-xs font-bold uppercase tracking-wider">Phase 2</span>
+            </div>
+            <CardTitle>Analysis Dimensions</CardTitle>
+            <CardDescription>Select the areas of life this decision will impact most</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {AVAILABLE_DIMENSIONS.map((dimension) => (
-                <div key={dimension} className="flex items-center space-x-2">
+                <div 
+                  key={dimension} 
+                  className={`flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer ${
+                    selectedDimensions.includes(dimension) 
+                    ? 'bg-primary/5 border-primary ring-1 ring-primary/20' 
+                    : 'hover:bg-muted'
+                  }`}
+                  onClick={() => toggleDimension(dimension)}
+                >
                   <Checkbox
                     id={dimension}
                     checked={selectedDimensions.includes(dimension)}
                     onCheckedChange={() => toggleDimension(dimension)}
                     disabled={isAnalyzing}
+                    className="data-[state=checked]:bg-primary"
                   />
                   <label
                     htmlFor={dimension}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    className="text-sm font-medium capitalize cursor-pointer select-none"
                   >
-                    {t(`input.dimension.${dimension}`)}
+                    {dimension}
                   </label>
                 </div>
               ))}
             </div>
-          </div>
 
-          {/* Custom Factors */}
-          <div className="space-y-3">
-            <Label>{t('input.customFactorsTitle')}</Label>
-            <p className="text-sm text-muted-foreground">
-              {t('input.customFactorsDescription')}
-            </p>
-            <div className="space-y-2">
-              {customFactors.map((factor, index) => (
-                <div key={index} className="flex gap-2">
-                  <Input
-                    placeholder={t('input.customFactorPlaceholder', { number: index + 1 })}
-                    value={factor}
-                    onChange={(e) => updateCustomFactor(index, e.target.value)}
-                    disabled={isAnalyzing}
-                    className="flex-1"
-                  />
-                  {customFactors.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => removeCustomFactor(index)}
+            <div className="space-y-3 pt-4 border-t">
+              <div className="flex items-center gap-2">
+                <Label className="text-sm font-semibold">Custom Success Factors</Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs max-w-xs">Add specific goals or constraints unique to your situation (e.g., "Must allow for remote work")</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="space-y-2">
+                {customFactors.map((factor, index) => (
+                  <div key={index} className="flex gap-2">
+                    <Input
+                      placeholder="Specific factor or constraint..."
+                      value={factor}
+                      onChange={(e) => updateCustomFactor(index, e.target.value)}
                       disabled={isAnalyzing}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-              {customFactors.length < 5 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={addCustomFactor}
-                  disabled={isAnalyzing}
-                  className="w-full"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  {t('input.addCustomFactor')}
-                </Button>
-              )}
+                      className="flex-1 text-sm"
+                    />
+                    {customFactors.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeCustomFactor(index)}
+                        disabled={isAnalyzing}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                {customFactors.length < 5 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={addCustomFactor}
+                    disabled={isAnalyzing}
+                    className="text-xs text-primary hover:bg-primary/5"
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Add Custom Factor
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* Timeframe */}
-          <div className="space-y-2">
-            <Label htmlFor="timeframe">{t('input.timeframe')}</Label>
-            <Select value={timeframe} onValueChange={setTimeframe} disabled={isAnalyzing}>
-              <SelectTrigger id="timeframe">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="short">{t('input.timeframeOptions.short')}</SelectItem>
-                <SelectItem value="medium">{t('input.timeframeOptions.medium')}</SelectItem>
-                <SelectItem value="long">{t('input.timeframeOptions.long')}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        {/* Section 3: Parameters */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card className="border-primary/10 shadow-sm">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-2 text-primary mb-1">
+                <Clock className="h-5 w-5" />
+                <span className="text-xs font-bold uppercase tracking-wider">Phase 3</span>
+              </div>
+              <CardTitle>Time Horizon</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Select value={timeframe} onValueChange={setTimeframe} disabled={isAnalyzing}>
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="short">Short Term (0-1 Year)</SelectItem>
+                  <SelectItem value="medium">Medium Term (1-5 Years)</SelectItem>
+                  <SelectItem value="long">Long Term (5-10+ Years)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-[10px] text-muted-foreground mt-3 italic">
+                Determines the depth of temporal simulation and causal chain tracing.
+              </p>
+            </CardContent>
+          </Card>
 
-          {/* Risk Profile */}
-          <div className="space-y-2">
-            <Label htmlFor="risk">{t('input.riskProfile')}</Label>
-            <Select value={riskProfile} onValueChange={setRiskProfile} disabled={isAnalyzing}>
-              <SelectTrigger id="risk">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="conservative">{t('input.riskOptions.conservative')}</SelectItem>
-                <SelectItem value="balanced">{t('input.riskOptions.balanced')}</SelectItem>
-                <SelectItem value="aggressive">{t('input.riskOptions.aggressive')}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+          <Card className="border-primary/10 shadow-sm">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-2 text-primary mb-1">
+                <Shield className="h-5 w-5" />
+                <span className="text-xs font-bold uppercase tracking-wider">Phase 4</span>
+              </div>
+              <CardTitle>Risk Tolerance</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Select value={riskProfile} onValueChange={setRiskProfile} disabled={isAnalyzing}>
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="conservative">Conservative (Risk Averse)</SelectItem>
+                  <SelectItem value="balanced">Balanced (Prudent)</SelectItem>
+                  <SelectItem value="aggressive">Aggressive (Opportunity Focused)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-[10px] text-muted-foreground mt-3 italic">
+                Influences the weighting of downside risks vs. upside potential in the final report.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
-      <Button type="submit" size="lg" className="w-full" disabled={!isValid || isAnalyzing}>
-        <Sparkles className="h-5 w-5 mr-2" />
-        {isAnalyzing ? t('input.analyzing') : t('input.analyze')}
-      </Button>
+      <div className="pt-6">
+        <Button 
+          type="submit" 
+          size="lg" 
+          className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.99]" 
+          disabled={!isValid || isAnalyzing}
+        >
+          {isAnalyzing ? (
+            <div className="flex items-center gap-3">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+              Initializing AI Agents...
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-6 w-6" />
+              Run Strategic Simulation
+            </div>
+          )}
+        </Button>
+        <p className="text-center text-[10px] text-muted-foreground mt-4 uppercase tracking-widest">
+          Enterprise Grade Analysis • 10,000+ Simulations • Multi-Agent Synthesis
+        </p>
+      </div>
     </form>
   );
 }
-

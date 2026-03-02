@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
-import { AlertTriangle, RotateCcw } from "lucide-react";
+import { AlertTriangle, RotateCcw, Home, MessageSquare } from "lucide-react";
 import { Component, ReactNode } from "react";
+import { Button } from "./ui/button";
 
 interface Props {
   children: ReactNode;
@@ -21,35 +22,62 @@ class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("Uncaught error:", error, errorInfo);
+  }
+
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex items-center justify-center min-h-screen p-8 bg-background">
-          <div className="flex flex-col items-center w-full max-w-2xl p-8">
-            <AlertTriangle
-              size={48}
-              className="text-destructive mb-6 flex-shrink-0"
-            />
-
-            <h2 className="text-xl mb-4">An unexpected error occurred.</h2>
-
-            <div className="p-4 w-full rounded bg-muted overflow-auto mb-6">
-              <pre className="text-sm text-muted-foreground whitespace-break-spaces">
-                {this.state.error?.stack}
-              </pre>
+        <div className="flex items-center justify-center min-h-screen p-6 bg-background">
+          <div className="flex flex-col items-center text-center w-full max-w-md p-8 rounded-2xl border bg-card shadow-xl">
+            <div className="h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center mb-6">
+              <AlertTriangle size={32} className="text-destructive" />
             </div>
 
-            <button
-              onClick={() => window.location.reload()}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg",
-                "bg-primary text-primary-foreground",
-                "hover:opacity-90 cursor-pointer"
-              )}
-            >
-              <RotateCcw size={16} />
-              Reload Page
-            </button>
+            <h2 className="text-2xl font-bold mb-2">System Interruption</h2>
+            <p className="text-muted-foreground mb-8">
+              We encountered an unexpected neural processing error. Our engineers have been notified.
+            </p>
+
+            <div className="grid grid-cols-1 w-full gap-3">
+              <Button 
+                onClick={() => window.location.reload()}
+                className="w-full font-bold"
+              >
+                <RotateCcw size={18} className="mr-2" />
+                Restart Session
+              </Button>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <Button 
+                  variant="outline"
+                  onClick={() => window.location.href = '/'}
+                  className="font-semibold"
+                >
+                  <Home size={16} className="mr-2" />
+                  Home
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => window.location.href = '/about'}
+                  className="font-semibold"
+                >
+                  <MessageSquare size={16} className="mr-2" />
+                  Support
+                </Button>
+              </div>
+            </div>
+
+            {process.env.NODE_ENV === 'development' && (
+              <div className="mt-8 p-4 w-full rounded-lg bg-muted text-left overflow-auto max-h-40 border">
+                <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2 font-bold">Debug Trace</p>
+                <pre className="text-[10px] font-mono text-muted-foreground whitespace-pre-wrap">
+                  {this.state.error?.message}
+                  {this.state.error?.stack}
+                </pre>
+              </div>
+            )}
           </div>
         </div>
       );

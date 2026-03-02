@@ -10,25 +10,29 @@ const resources = {
         home: 'Home',
         about: 'About',
         pricing: 'Pricing',
+        history: 'History',
+        newAnalysis: 'New Analysis',
+        upgrade: 'Upgrade to Pro',
       },
       
       // Hero Section
       hero: {
         title: 'See Your Future, Choose Wisely',
-        subtitle: 'AI-powered decision analysis platform that helps you predict complex decision outcomes through multi-dimensional analysis and visualization',
+        subtitle: 'Enterprise-grade decision intelligence platform. Predict complex outcomes through multi-agent AI simulation and deep causal modeling.',
         cta: 'Start Analysis',
         learnMore: 'Learn More',
       },
       
       // Decision Input
       input: {
-        title: 'Describe Your Decision',
+        title: 'Strategic Input',
+        description: 'Define your decision parameters for deep AI simulation',
         decisionLabel: 'What decision are you facing?',
-        decisionPlaceholder: 'E.g., Should I accept a job offer from a competitor company?',
-        optionsTitle: 'Your Options',
-        addOption: 'Add Option',
+        decisionPlaceholder: 'E.g., Should I leave my stable corporate job to start a FinTech startup?',
+        optionsTitle: 'Options to Compare',
+        addOption: 'Add Comparison Option',
         optionPlaceholder: 'Describe this option...',
-        dimensionsTitle: 'What matters to you?',
+        dimensionsTitle: 'Analysis Dimensions',
         dimension: {
           financial: 'Financial Impact',
           career: 'Career Development',
@@ -39,56 +43,67 @@ const resources = {
         },
         timeframe: 'Time Horizon',
         timeframeOptions: {
-          short: 'Short-term (< 1 year)',
-          medium: 'Medium-term (1-5 years)',
-          long: 'Long-term (5+ years)',
+          short: 'Short Term (0-1 Year)',
+          medium: 'Medium Term (1-5 Years)',
+          long: 'Long Term (5-10+ Years)',
         },
-        riskProfile: 'Risk Preference',
+        riskProfile: 'Risk Tolerance',
         riskOptions: {
-          conservative: 'Conservative',
-          balanced: 'Balanced',
-          aggressive: 'Aggressive',
+          conservative: 'Conservative (Risk Averse)',
+          balanced: 'Balanced (Prudent)',
+          aggressive: 'Aggressive (Opportunity Focused)',
         },
-        customFactorsTitle: 'Other Important Factors',
-        customFactorsDescription: 'Please enter other important factors you think should be considered. This will help AI analyze your decision more comprehensively.',
-        customFactorPlaceholder: 'E.g., Distance from family, Company culture, Industry prospects...',
-        addCustomFactor: 'Add Factor',
-        analyze: 'Analyze Decision',
-        analyzing: 'Analyzing...',
+        customFactorsTitle: 'Custom Success Factors',
+        customFactorsDescription: 'Add specific goals or constraints unique to your situation.',
+        customFactorPlaceholder: 'E.g., Distance from family, Company culture...',
+        addCustomFactor: 'Add Custom Factor',
+        analyze: 'Run Strategic Simulation',
+        analyzing: 'Initializing AI Agents...',
       },
       
       // Progress
       progress: {
-        analyzing: 'Analyzing Your Decision',
-        description: 'Our AI agents are working together to provide comprehensive analysis...',
-        overall: 'Overall Progress',
-        estimatedTime: 'Estimated time: 30-60 seconds',
+        analyzing: 'Strategic Simulation in Progress',
+        description: 'Orchestrating multiple AI agents for deep causal analysis...',
+        overall: 'Overall Completion',
+        estimatedTime: 'Estimated time: 45-60 seconds',
       },
       
       // Results
       results: {
-        title: 'Analysis Results',
+        title: 'Strategic Analysis Report',
+        comparison: 'Comparative Overview',
+        recommendation: 'AI Recommendation',
         overallScore: 'Overall Score',
-        cascadeEffects: 'Cascade Effects',
+        cascadeEffects: 'Cascade Effects Analysis',
         firstOrder: 'Direct Impact',
         secondOrder: 'Indirect Effects',
         thirdOrder: 'Long-term Consequences',
-        scenarios: 'Possible Scenarios',
+        scenarios: 'Future Scenario Analysis',
         bestCase: 'Best Case',
         mostLikely: 'Most Likely',
         worstCase: 'Worst Case',
         probability: 'Probability',
         keyUncertainties: 'Key Uncertainties',
-        dimensionScores: 'Multi-dimensional Analysis',
-        exportPDF: 'Export Report',
+        dimensionScores: 'Dimension Breakdown',
+        export: 'Export PDF',
         startNew: 'New Analysis',
+      },
+      
+      // History
+      history: {
+        title: 'Decision History',
+        subtitle: 'Review and manage your past strategic analyses',
+        search: 'Search past decisions...',
+        noHistory: 'No history found',
+        newAnalysis: 'Start Your First Analysis',
       },
       
       // Common
       common: {
-        loading: 'Loading...',
-        error: 'Error',
-        retry: 'Retry',
+        loading: 'Loading Neural Engine...',
+        error: 'System Error',
+        retry: 'Retry Analysis',
         cancel: 'Cancel',
         confirm: 'Confirm',
         close: 'Close',
@@ -97,7 +112,7 @@ const resources = {
       // Footer
       footer: {
         tagline: 'Predict the future, make better decisions',
-        copyright: '© 2025 Decision Simulator. All rights reserved.',
+        copyright: '© 2026 DecisionSimulator AI. All rights reserved.',
       },
     },
   },
@@ -108,25 +123,29 @@ const resources = {
         home: '首页',
         about: '关于',
         pricing: '价格',
+        history: '历史记录',
+        newAnalysis: '新建分析',
+        upgrade: '升级专业版',
       },
       
       // 主页标题
       hero: {
-        title: '预见未来,智慧抉择',
-        subtitle: 'AI驱动的决策分析平台,通过多维度分析和可视化帮助您预测复杂决策的发展走向',
+        title: '预见未来，智慧抉择',
+        subtitle: '企业级决策情报平台。通过多 Agent AI 模拟和深度因果建模预测复杂决策走向。',
         cta: '开始分析',
         learnMore: '了解更多',
       },
       
       // 决策输入
       input: {
-        title: '描述您的决策',
-        decisionLabel: '您面临什么决策?',
-        decisionPlaceholder: '例如:我是否应该接受竞争对手公司的工作邀请?',
-        optionsTitle: '您的选项',
-        addOption: '添加选项',
-        optionPlaceholder: '描述这个选项...',
-        dimensionsTitle: '您关注什么?',
+        title: '战略输入',
+        description: '定义决策参数，进行深度 AI 模拟',
+        decisionLabel: '您面临什么决策？',
+        decisionPlaceholder: '例如：我是否应该辞去稳定的工作去创办一家金融科技公司？',
+        optionsTitle: '对比选项',
+        addOption: '添加对比选项',
+        optionPlaceholder: '描述此选项...',
+        dimensionsTitle: '分析维度',
         dimension: {
           financial: '财务影响',
           career: '职业发展',
@@ -137,56 +156,67 @@ const resources = {
         },
         timeframe: '时间跨度',
         timeframeOptions: {
-          short: '短期 (< 1年)',
-          medium: '中期 (1-5年)',
-          long: '长期 (5年以上)',
+          short: '短期 (0-1 年)',
+          medium: '中期 (1-5 年)',
+          long: '长期 (5-10+ 年)',
         },
         riskProfile: '风险偏好',
         riskOptions: {
-          conservative: '保守型',
-          balanced: '平衡型',
-          aggressive: '激进型',
+          conservative: '保守型 (风险规避)',
+          balanced: '平衡型 (审慎)',
+          aggressive: '激进型 (机会导向)',
         },
-        customFactorsTitle: '其他重要因素',
-        customFactorsDescription: '请输入您认为需要考虑的其他重要因素，这将帮助AI更全面地分析您的决策。',
-        customFactorPlaceholder: '例如：家庭距离、公司文化、行业前景...',
-        addCustomFactor: '添加因素',
-        analyze: '分析决策',
-        analyzing: '分析中...',
+        customFactorsTitle: '自定义成功因素',
+        customFactorsDescription: '添加针对您个人情况的特定目标或约束。',
+        customFactorPlaceholder: '例如：离家距离、公司文化...',
+        addCustomFactor: '添加自定义因素',
+        analyze: '运行战略模拟',
+        analyzing: '正在初始化 AI 代理...',
       },
       
       // 进度
       progress: {
-        analyzing: '正在分析您的决策',
-        description: '我们的AI代理正在协同工作，为您提供全面的分析...',
-        overall: '总体进度',
-        estimatedTime: '预计时间：30-60秒',
+        analyzing: '战略模拟进行中',
+        description: '正在协调多个 AI 代理进行深度因果分析...',
+        overall: '总体完成度',
+        estimatedTime: '预计时间：45-60 秒',
       },
       
       // 结果
       results: {
-        title: '分析结果',
+        title: '战略分析报告',
+        comparison: '对比概览',
+        recommendation: 'AI 建议',
         overallScore: '综合评分',
-        cascadeEffects: '级联效应',
+        cascadeEffects: '级联效应分析',
         firstOrder: '直接影响',
         secondOrder: '间接效应',
         thirdOrder: '长期后果',
-        scenarios: '可能场景',
+        scenarios: '未来情景分析',
         bestCase: '最好情况',
         mostLikely: '最可能情况',
         worstCase: '最坏情况',
         probability: '概率',
         keyUncertainties: '关键不确定性',
-        dimensionScores: '多维度分析',
-        exportPDF: '导出报告',
+        dimensionScores: '维度分解',
+        export: '导出 PDF',
         startNew: '新建分析',
+      },
+      
+      // 历史记录
+      history: {
+        title: '决策历史',
+        subtitle: '回顾和管理您过去的战略分析',
+        search: '搜索过去的决策...',
+        noHistory: '未找到历史记录',
+        newAnalysis: '开始您的第一次分析',
       },
       
       // 通用
       common: {
-        loading: '加载中...',
-        error: '错误',
-        retry: '重试',
+        loading: '正在加载神经引擎...',
+        error: '系统错误',
+        retry: '重试分析',
         cancel: '取消',
         confirm: '确认',
         close: '关闭',
@@ -194,8 +224,8 @@ const resources = {
       
       // 页脚
       footer: {
-        tagline: '预测未来,做出更好的决定',
-        copyright: '© 2025 决策模拟器。保留所有权利。',
+        tagline: '预测未来，做出更好的决定',
+        copyright: '© 2026 DecisionSimulator AI。保留所有权利。',
       },
     },
   },
@@ -217,4 +247,3 @@ i18n
   });
 
 export default i18n;
-

@@ -4,6 +4,7 @@ import { calculateProbabilities } from './agent2-probability';
 import { simulateTimeline } from './agent3-timeline';
 import { runDialecticalAnalysis } from './agent-dialectical';
 import { analyzeGameTheory, analyzeAdvancedScenarios, analyzeCausalChains } from './agent-advanced-reasoning';
+import { OptionAnalysis } from '@/components/AnalysisResults';
 
 /**
  * AI协调器 - 统筹所有AI Agent的工作流程
@@ -218,7 +219,7 @@ export async function runCompleteAnalysis(
 /**
  * 将CompleteAnalysis转换为旧的OptionAnalysis格式(用于兼容现有UI)
  */
-export function convertToLegacyFormat(analysis: CompleteAnalysis, input: DecisionInput) {
+export function convertToLegacyFormat(analysis: CompleteAnalysis, input: DecisionInput): OptionAnalysis[] {
   return input.options.map((option, index) => {
     const timeline = analysis.timelineSimulation.timelines[index];
     const finalStage = timeline?.stages[timeline.stages.length - 1];
@@ -231,31 +232,27 @@ export function convertToLegacyFormat(analysis: CompleteAnalysis, input: Decisio
         )
       : 50 + Math.random() * 30;
 
+    const dimensionScores = finalStage ? Object.entries(finalStage.state).map(([dim, score]) => ({
+      dimension: dim,
+      score: score,
+      details: `Impact analysis for ${dim}`
+    })) : [];
+
     return {
-      option_name: option.description,
-      overall_score: overallScore,
-      cascade_effects: {
+      optionId: option.id,
+      optionName: option.description,
+      overallScore: overallScore,
+      dimensionScores: dimensionScores,
+      pros: analysis.finalReport.recommendation.includes(option.description) ? ['High strategic alignment', 'Strong upside potential'] : ['Stable outcome', 'Predictable risks'],
+      cons: overallScore < 60 ? ['Significant resource requirement', 'High opportunity cost'] : ['Minor operational risks'],
+      bestFor: overallScore > 75 ? 'Optimal growth' : 'Risk mitigation',
+      riskLevel: overallScore > 70 ? 'low' : overallScore > 40 ? 'medium' : 'high',
+      cascadeEffects: {
         first_order: timeline?.stages[0]?.events || [],
         second_order: timeline?.stages[1]?.events || [],
         third_order: timeline?.stages[2]?.events || [],
-      },
-      dimension_scores: finalStage?.state || {},
-      scenarios: {
-        best_case: {
-          description: timeline?.stages[3]?.description || 'Optimal outcome achieved',
-          probability: 0.25,
-        },
-        most_likely: {
-          description: timeline?.stages[2]?.description || 'Expected outcome',
-          probability: 0.50,
-        },
-        worst_case: {
-          description: 'Significant challenges encountered',
-          probability: 0.25,
-        },
       },
       key_uncertainties: analysis.decisionStructure.assumptions,
     };
   });
 }
-

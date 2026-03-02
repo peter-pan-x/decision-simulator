@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileDown, RotateCcw, TrendingUp, AlertTriangle, Brain, MessageSquare } from 'lucide-react';
+import { FileDown, RotateCcw, TrendingUp, AlertTriangle, Brain, MessageSquare, Share2, Download } from 'lucide-react';
+import { exportToPDF, shareReport } from '@/lib/exportUtils';
 import DecisionFlowChart from './DecisionFlowChart';
 import RadarChart from './RadarChart';
 import ReasoningVisualization from './ReasoningVisualization';
@@ -18,22 +19,20 @@ export interface CascadeEffect {
   third_order: string[];
 }
 
-export interface Scenario {
-  description: string;
-  probability: number;
-  image_url?: string;
-}
-
 export interface OptionAnalysis {
-  option_name: string;
-  overall_score: number;
-  cascade_effects: CascadeEffect;
-  dimension_scores: Record<string, number>;
-  scenarios: {
-    best_case: Scenario;
-    most_likely: Scenario;
-    worst_case: Scenario;
-  };
+  optionId: string;
+  optionName: string;
+  overallScore: number;
+  dimensionScores: {
+    dimension: string;
+    score: number;
+    details: string;
+  }[];
+  pros: string[];
+  cons: string[];
+  bestFor: string;
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  cascadeEffects: CascadeEffect;
   key_uncertainties: string[];
 }
 
@@ -54,42 +53,47 @@ export default function AnalysisResults({ results, onStartNew, debateLogs, advan
     return 'text-red-600';
   };
 
-  const getScoreBgColor = (score: number) => {
-    if (score >= 80) return 'bg-green-50 border-green-200';
-    if (score >= 60) return 'bg-blue-50 border-blue-200';
-    if (score >= 40) return 'bg-yellow-50 border-yellow-200';
-    return 'bg-red-50 border-red-200';
+  const getRiskBadge = (level: string) => {
+    switch (level) {
+      case 'low': return <Badge className="bg-green-100 text-green-800 border-green-200">Low Risk</Badge>;
+      case 'medium': return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Medium Risk</Badge>;
+      case 'high': return <Badge className="bg-orange-100 text-orange-800 border-orange-200">High Risk</Badge>;
+      case 'critical': return <Badge className="bg-red-100 text-red-800 border-red-200">Critical Risk</Badge>;
+      default: return null;
+    }
   };
 
-  // 准备雷达图数据
-  const radarData = Object.keys(results[0]?.dimension_scores || {}).map((dimension) => {
-    const dataPoint: any = { dimension: t(`input.dimension.${dimension}`) };
-    results.forEach((result, index) => {
-      dataPoint[`Option ${index + 1}`] = result.dimension_scores[dimension];
-    });
-    return dataPoint;
-  });
-
-  const radarDataKeys = results.map((_, index) => `Option ${index + 1}`);
-  const radarColors = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
-
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex justify-between items-center">
+    <div className="space-y-8 animate-in fade-in duration-700" id="analysis-report">
+      {/* Header Actions */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-card p-6 rounded-xl border shadow-sm">
         <div>
           <h2 className="text-3xl font-bold">{t('results.title')}</h2>
           <p className="text-muted-foreground mt-1">
             Comprehensive multi-dimensional analysis of your decision options
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <FileDown className="h-4 w-4 mr-2" />
-            {t('results.exportPDF')}
+        <div className="flex flex-wrap gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-2"
+            onClick={() => exportToPDF('analysis-report', `Decision_Analysis_${new Date().getTime()}.pdf`)}
+          >
+            <Download className="h-4 w-4" />
+            Export PDF
           </Button>
-          <Button variant="outline" size="sm" onClick={onStartNew}>
-            <RotateCcw className="h-4 w-4 mr-2" />
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-2"
+            onClick={() => shareReport('My Decision Analysis', 'Check out this strategic analysis from DecisionSimulator AI!')}
+          >
+            <Share2 className="h-4 w-4" />
+            Share
+          </Button>
+          <Button variant="default" size="sm" onClick={onStartNew} className="gap-2">
+            <RotateCcw className="h-4 w-4" />
             {t('results.startNew')}
           </Button>
         </div>
@@ -130,192 +134,156 @@ export default function AnalysisResults({ results, onStartNew, debateLogs, advan
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
-              Options Comparison
+              {t('results.comparison')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Score Comparison */}
-              <div>
-                <h4 className="font-semibold mb-4">Overall Scores</h4>
-                <div className="space-y-3">
-                  {results.map((result, index) => (
-                    <div key={index}>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm font-medium truncate max-w-[200px]">
-                          {result.option_name}
-                        </span>
-                        <span className={`text-lg font-bold ${getScoreColor(result.overall_score)}`}>
-                          {result.overall_score}
-                        </span>
-                      </div>
-                      <div className="h-3 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className={`h-full transition-all ${
-                            result.overall_score >= 70
-                              ? 'bg-green-500'
-                              : result.overall_score >= 50
-                              ? 'bg-blue-500'
-                              : 'bg-yellow-500'
-                          }`}
-                          style={{ width: `${result.overall_score}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Radar Chart */}
-              <div>
-                <h4 className="font-semibold mb-4">Multi-dimensional Comparison</h4>
-                <RadarChart data={radarData} dataKeys={radarDataKeys} colors={radarColors} />
-              </div>
+            <div className="h-[350px] w-full">
+              <RadarChart 
+                data={
+                  results[0]?.dimensionScores.map(dim => {
+                    const entry: any = { dimension: dim.dimension };
+                    results.forEach(opt => {
+                      const optDim = opt.dimensionScores.find(d => d.dimension === dim.dimension);
+                      entry[opt.optionName] = optDim ? optDim.score : 0;
+                    });
+                    return entry;
+                  }) || []
+                }
+                dataKeys={results.map(opt => opt.optionName)}
+                colors={['#2563eb', '#db2777', '#059669', '#d97706', '#7c3aed']}
+              />
             </div>
           </CardContent>
         </Card>
 
-        {/* Dialectical Reasoning Logs in Results */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Brain className="h-5 w-5 text-primary" />
-              Reasoning Trace
+              <Brain className="h-5 w-5" />
+              {t('results.recommendation')}
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-              {debateLogs?.map((log, i) => (
-                <div key={i} className="text-[11px] p-2 rounded bg-muted/30 border-l-2 border-primary/20">
-                  <div className="font-bold flex items-center gap-1 mb-1">
-                    <MessageSquare className="h-3 w-3 opacity-50" />
-                    {log.agent}
-                  </div>
-                  <p className="opacity-80">{log.message}</p>
+          <CardContent className="space-y-6">
+            {results.sort((a, b) => b.overallScore - a.overallScore).map((option, index) => (
+              <div key={option.optionId} className={`p-4 rounded-lg border ${index === 0 ? 'bg-primary/5 border-primary/20 ring-1 ring-primary/20' : 'bg-muted/30'}`}>
+                <div className="flex justify-between items-start mb-2">
+                  <h4 className="font-bold text-lg">{option.optionName}</h4>
+                  <span className={`text-2xl font-black ${getScoreColor(option.overallScore)}`}>
+                    {option.overallScore}
+                  </span>
                 </div>
-              ))}
-              {!debateLogs?.length && (
-                <p className="text-xs text-muted-foreground italic">No reasoning trace available.</p>
-              )}
-            </div>
+                <div className="flex items-center gap-2 mb-3">
+                  {getRiskBadge(option.riskLevel)}
+                  {index === 0 && <Badge className="bg-primary text-primary-foreground">Best Choice</Badge>}
+                </div>
+                <p className="text-sm text-muted-foreground italic">
+                  Best for: {option.bestFor}
+                </p>
+              </div>
+            ))}
           </CardContent>
         </Card>
       </div>
 
-      {/* Detailed Analysis for Each Option */}
-      <div className="space-y-6">
-        {results.map((result, index) => (
-          <Card key={index} className={`border-2 ${getScoreBgColor(result.overall_score)}`}>
-            <CardHeader className="bg-gradient-to-r from-primary/5 to-accent/5">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge variant="outline">Option {index + 1}</Badge>
-                    <CardTitle className="text-xl">{result.option_name}</CardTitle>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm text-muted-foreground">{t('results.overallScore')}</div>
-                  <div className={`text-4xl font-bold ${getScoreColor(result.overall_score)}`}>
-                    {result.overall_score}
-                  </div>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6 space-y-6">
-              {/* Cascade Effects Flow Chart */}
-              <div>
-                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4" />
-                  {t('results.cascadeEffects')} - Decision Flow
-                </h3>
-                <DecisionFlowChart
-                  optionName={result.option_name}
-                  cascadeEffects={result.cascade_effects}
-                  overallScore={result.overall_score}
-                />
-              </div>
+      {/* Detailed Option Analysis */}
+      <Tabs defaultValue={results[0]?.optionId} className="w-full">
+        <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${results.length}, 1fr)` }}>
+          {results.map(option => (
+            <TabsTrigger key={option.optionId} value={option.optionId} className="text-sm font-semibold">
+              {option.optionName}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-              {/* Cascade Effects List */}
-              <div>
-                <h3 className="font-semibold mb-3">Detailed Cascade Analysis</h3>
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div>
-                    <Badge variant="default" className="mb-2">
-                      {t('results.firstOrder')}
-                    </Badge>
-                    <ul className="list-disc list-inside space-y-1 text-sm">
-                      {result.cascade_effects.first_order.map((effect, i) => (
-                        <li key={i}>{effect}</li>
+        {results.map(option => (
+          <TabsContent key={option.optionId} value={option.optionId} className="mt-6 space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Pros & Cons */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5 text-primary" />
+                    Pros & Cons
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <h5 className="font-bold text-green-600 text-sm uppercase tracking-wider">Advantages</h5>
+                    <ul className="space-y-2">
+                      {option.pros.map((pro, i) => (
+                        <li key={i} className="text-sm flex gap-2">
+                          <span className="text-green-500">✓</span>
+                          {pro}
+                        </li>
                       ))}
                     </ul>
                   </div>
-                  <div>
-                    <Badge variant="secondary" className="mb-2">
-                      {t('results.secondOrder')}
-                    </Badge>
-                    <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                      {result.cascade_effects.second_order.map((effect, i) => (
-                        <li key={i}>{effect}</li>
+                  <div className="space-y-3">
+                    <h5 className="font-bold text-red-600 text-sm uppercase tracking-wider">Disadvantages</h5>
+                    <ul className="space-y-2">
+                      {option.cons.map((con, i) => (
+                        <li key={i} className="text-sm flex gap-2">
+                          <span className="text-red-500">✗</span>
+                          {con}
+                        </li>
                       ))}
                     </ul>
                   </div>
-                  <div>
-                    <Badge variant="outline" className="mb-2">
-                      {t('results.thirdOrder')}
-                    </Badge>
-                    <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                      {result.cascade_effects.third_order.map((effect, i) => (
-                        <li key={i}>{effect}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
-              {/* Scenarios */}
-              <div>
-                <h3 className="font-semibold mb-3">{t('results.scenarios')}</h3>
-                <Tabs defaultValue="most_likely" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="best_case">{t('results.bestCase')}</TabsTrigger>
-                    <TabsTrigger value="most_likely">{t('results.mostLikely')}</TabsTrigger>
-                    <TabsTrigger value="worst_case">{t('results.worstCase')}</TabsTrigger>
-                  </TabsList>
-                  {(['best_case', 'most_likely', 'worst_case'] as const).map((scenarioType) => (
-                    <TabsContent key={scenarioType} value={scenarioType} className="space-y-2 mt-4">
-                      <div className="p-4 bg-muted/50 rounded-lg">
-                        <p className="text-sm leading-relaxed">{result.scenarios[scenarioType].description}</p>
-                        <div className="mt-3 flex items-center gap-2">
-                          <Badge variant="outline">
-                            {t('results.probability')}: {(result.scenarios[scenarioType].probability * 100).toFixed(0)}%
-                          </Badge>
-                        </div>
+              {/* Dimension Breakdown */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                    Dimension Breakdown
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {option.dimensionScores.map(dim => (
+                    <div key={dim.dimension} className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span className="font-medium">{dim.dimension}</span>
+                        <span className={getScoreColor(dim.score)}>{dim.score}/100</span>
                       </div>
-                    </TabsContent>
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full transition-all duration-1000 ${
+                            dim.score >= 80 ? 'bg-green-500' : 
+                            dim.score >= 60 ? 'bg-blue-500' : 
+                            dim.score >= 40 ? 'bg-yellow-500' : 'bg-red-500'
+                          }`}
+                          style={{ width: `${dim.score}%` }}
+                        />
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">{dim.details}</p>
+                    </div>
                   ))}
-                </Tabs>
-              </div>
+                </CardContent>
+              </Card>
+            </div>
 
-              {/* Key Uncertainties */}
-              {result.key_uncertainties.length > 0 && (
-                <div>
-                  <h3 className="font-semibold mb-2 flex items-center gap-2">
-                    <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                    {t('results.keyUncertainties')}
-                  </h3>
-                  <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                    {result.key_uncertainties.map((uncertainty, i) => (
-                      <li key={i}>{uncertainty}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            {/* Cascade Effects Visualization */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-primary" />
+                  Cascade Effects Analysis
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DecisionFlowChart 
+                  optionName={option.optionName}
+                  cascadeEffects={option.cascadeEffects}
+                  overallScore={option.overallScore}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
         ))}
-      </div>
+      </Tabs>
     </div>
   );
 }
-

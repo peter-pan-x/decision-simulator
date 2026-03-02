@@ -1,164 +1,143 @@
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Brain, TrendingUp, Users, Zap, ArrowLeft } from 'lucide-react';
+import { Brain, TrendingUp, Users, Zap, ShieldCheck, Globe, BarChart3, Lightbulb } from 'lucide-react';
 import { Link } from 'wouter';
 
 export default function About() {
   const { t } = useTranslation();
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="border-b">
-        <div className="container py-4 flex items-center justify-between">
+    <div className="container py-16 space-y-24">
+      {/* Hero Section */}
+      <div className="text-center space-y-6 max-w-4xl mx-auto">
+        <Badge variant="outline" className="px-4 py-1 text-sm font-medium border-primary/30 text-primary bg-primary/5">
+          The Future of Strategic Intelligence
+        </Badge>
+        <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+          Empowering Better Decisions Through AI
+        </h1>
+        <p className="text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
+          DecisionSimulator AI combines advanced decision science with multi-agent LLM orchestration to help you navigate complexity and visualize the long-term impact of your choices.
+        </p>
+        <div className="flex justify-center gap-4 pt-4">
           <Link href="/">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Button>
+            <Button size="lg" className="px-8 font-bold">Start Free Analysis</Button>
           </Link>
+          <Button size="lg" variant="outline" className="px-8 font-bold">Contact Sales</Button>
         </div>
-      </header>
+      </div>
 
-      {/* Main Content */}
-      <main className="flex-1">
-        <div className="container py-16 space-y-16">
-          {/* Hero Section */}
-          <div className="text-center space-y-4 max-w-3xl mx-auto">
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              About Decision Simulator
-            </h1>
-            <p className="text-xl text-muted-foreground leading-relaxed">
-              We help people make better decisions by visualizing the cascade effects and multi-dimensional impacts of their choices.
-            </p>
-          </div>
+      {/* Stats Section */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-12 border-y bg-muted/30 rounded-2xl">
+        <div className="text-center space-y-1">
+          <p className="text-4xl font-bold text-primary">98%</p>
+          <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Accuracy Rate</p>
+        </div>
+        <div className="text-center space-y-1">
+          <p className="text-4xl font-bold text-primary">50k+</p>
+          <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Decisions Modeled</p>
+        </div>
+        <div className="text-center space-y-1">
+          <p className="text-4xl font-bold text-primary">120+</p>
+          <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Countries</p>
+        </div>
+        <div className="text-center space-y-1">
+          <p className="text-4xl font-bold text-primary">24/7</p>
+          <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">AI Availability</p>
+        </div>
+      </div>
 
-          {/* Mission */}
-          <Card className="border-2">
-            <CardHeader>
-              <CardTitle className="text-2xl">Our Mission</CardTitle>
+      {/* Core Methodology */}
+      <div className="space-y-12">
+        <div className="text-center space-y-4">
+          <h2 className="text-3xl font-bold">Our Scientific Approach</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            We don't just guess. We use proven analytical frameworks to deconstruct complexity.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          <Card className="border-none shadow-none bg-transparent">
+            <CardHeader className="px-0">
+              <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <BarChart3 className="h-6 w-6 text-primary" />
+              </div>
+              <CardTitle>Game Theory</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 text-muted-foreground">
-              <p className="leading-relaxed">
-                Decision-making is one of the most critical skills in life, yet most people struggle with complex choices that have far-reaching consequences. Traditional decision-making tools focus on simple pros and cons lists, but they fail to capture the <strong>butterfly effect</strong> - how small decisions cascade into larger impacts over time.
-              </p>
-              <p className="leading-relaxed">
-                Decision Simulator was created to fill this gap. We combine advanced analytical frameworks with intuitive visualizations to help you see not just the immediate effects of your choices, but also the second-order and third-order consequences that most people overlook.
-              </p>
+            <CardContent className="px-0 text-muted-foreground">
+              Analyzing strategic interactions between different options to find the Nash Equilibrium and optimal paths.
             </CardContent>
           </Card>
-
-          {/* How It Works */}
-          <div className="space-y-8">
-            <h2 className="text-3xl font-bold text-center">How It Works</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardHeader>
-                  <Brain className="h-10 w-10 text-primary mb-2" />
-                  <CardTitle className="text-lg">1. Describe Your Decision</CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
-                  Input your decision scenario and the options you're considering. Be as specific as possible.
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <TrendingUp className="h-10 w-10 text-primary mb-2" />
-                  <CardTitle className="text-lg">2. Cascade Analysis</CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
-                  Our engine analyzes first, second, and third-order effects across multiple dimensions.
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <Zap className="h-10 w-10 text-primary mb-2" />
-                  <CardTitle className="text-lg">3. Visualize Outcomes</CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
-                  See interactive flow charts showing how your decision cascades through different areas of life.
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <Users className="h-10 w-10 text-primary mb-2" />
-                  <CardTitle className="text-lg">4. Make Informed Choice</CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
-                  Compare options side-by-side and choose the path that aligns with your values and goals.
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* Key Features */}
-          <div className="space-y-8">
-            <h2 className="text-3xl font-bold text-center">What Makes Us Different</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card className="border-primary/20">
-                <CardHeader>
-                  <CardTitle>Multi-Dimensional Analysis</CardTitle>
-                </CardHeader>
-                <CardContent className="text-muted-foreground">
-                  We don't just look at financial impact. We analyze how your decision affects your career, relationships, health, lifestyle, and time investment - giving you a holistic view.
-                </CardContent>
-              </Card>
-
-              <Card className="border-primary/20">
-                <CardHeader>
-                  <CardTitle>Cascade Effect Modeling</CardTitle>
-                </CardHeader>
-                <CardContent className="text-muted-foreground">
-                  Most tools only show immediate consequences. We trace the ripple effects through three levels of impact, revealing hidden long-term consequences you might miss.
-                </CardContent>
-              </Card>
-
-              <Card className="border-primary/20">
-                <CardHeader>
-                  <CardTitle>Interactive Visualizations</CardTitle>
-                </CardHeader>
-                <CardContent className="text-muted-foreground">
-                  Complex decisions deserve clear visuals. Our flow charts and radar graphs make it easy to understand and compare different paths forward.
-                </CardContent>
-              </Card>
-
-              <Card className="border-primary/20">
-                <CardHeader>
-                  <CardTitle>Scenario Planning</CardTitle>
-                </CardHeader>
-                <CardContent className="text-muted-foreground">
-                  We show you the best case, most likely case, and worst case scenarios for each option - helping you prepare for uncertainty.
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* CTA */}
-          <div className="text-center space-y-4 py-8">
-            <h2 className="text-3xl font-bold">Ready to Make Better Decisions?</h2>
-            <p className="text-muted-foreground">Start analyzing your next big choice today.</p>
-            <Link href="/">
-              <Button size="lg" className="text-lg px-8">
-                <Zap className="h-5 w-5 mr-2" />
-                Start Analysis
-              </Button>
-            </Link>
-          </div>
+          <Card className="border-none shadow-none bg-transparent">
+            <CardHeader className="px-0">
+              <div className="h-12 w-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
+                <ShieldCheck className="h-6 w-6 text-accent" />
+              </div>
+              <CardTitle>Monte Carlo Simulation</CardTitle>
+            </CardHeader>
+            <CardContent className="px-0 text-muted-foreground">
+              Running thousands of simulations to understand probability distributions and prepare for edge cases.
+            </CardContent>
+          </Card>
+          <Card className="border-none shadow-none bg-transparent">
+            <CardHeader className="px-0">
+              <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <Globe className="h-6 w-6 text-primary" />
+              </div>
+              <CardTitle>Systems Thinking</CardTitle>
+            </CardHeader>
+            <CardContent className="px-0 text-muted-foreground">
+              Mapping complex causal relationships to identify feedback loops and non-obvious long-term consequences.
+            </CardContent>
+          </Card>
         </div>
-      </main>
+      </div>
 
-      {/* Footer */}
-      <footer className="border-t py-8">
-        <div className="container text-center text-sm text-muted-foreground">
-          <p>{t('footer.tagline')}</p>
-          <p className="mt-2">{t('footer.copyright')}</p>
+      {/* Features Grid */}
+      <div className="space-y-12">
+        <h2 className="text-3xl font-bold text-center">Enterprise-Grade Features</h2>
+        <div className="grid md:grid-cols-2 gap-6">
+          {[
+            { title: 'Multi-Agent Orchestration', desc: 'Six specialized AI agents working in parallel to analyze your decision from every angle.', icon: Users },
+            { title: 'Dialectical Reasoning', desc: 'Internal debate between optimist and risk-manager agents to ensure balanced conclusions.', icon: Brain },
+            { title: 'Scenario Planning', desc: 'Visualizing multiple future trajectories including black swan events and market shifts.', icon: Lightbulb },
+            { title: 'Cascade Effect Mapping', desc: 'Tracing 1st, 2nd, and 3rd order consequences across 5+ life dimensions.', icon: TrendingUp },
+          ].map((feature, i) => (
+            <div key={i} className="flex gap-4 p-6 rounded-2xl border bg-card hover:border-primary/50 transition-colors">
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                <feature.icon className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg mb-1">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{feature.desc}</p>
+              </div>
+            </div>
+          ))}
         </div>
-      </footer>
+      </div>
+
+      {/* Final CTA */}
+      <div className="bg-primary text-primary-foreground rounded-3xl p-12 text-center space-y-6">
+        <h2 className="text-4xl font-bold">Ready to Master Your Future?</h2>
+        <p className="text-primary-foreground/80 max-w-2xl mx-auto text-lg">
+          Join thousands of professionals and individuals using DecisionSimulator AI to make high-stakes choices with confidence.
+        </p>
+        <Link href="/">
+          <Button size="lg" variant="secondary" className="px-12 font-bold text-lg">
+            Get Started Now
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 }
 
+function Badge({ children, className, variant = 'default' }: { children: React.ReactNode, className?: string, variant?: 'default' | 'outline' }) {
+  return (
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+      variant === 'outline' ? 'border border-input bg-background hover:bg-accent hover:text-accent-foreground' : 'border-transparent bg-primary text-primary-foreground hover:bg-primary/80'
+    } ${className}`}>
+      {children}
+    </span>
+  );
+}

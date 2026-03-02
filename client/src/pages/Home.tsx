@@ -77,6 +77,17 @@ export default function Home() {
       const analysisResults = convertToLegacyFormat(completeAnalysis, data);
       setResults(analysisResults);
       setCompleteAnalysis(completeAnalysis);
+
+      // 保存到历史记录
+      const historyItem = {
+        id: Math.random().toString(36).substr(2, 9),
+        question: data.question,
+        timestamp: Date.now(),
+        recommendation: completeAnalysis.finalReport.recommendation,
+        confidence: completeAnalysis.finalReport.confidenceLevel
+      };
+      const savedHistory = JSON.parse(localStorage.getItem('decision_history') || '[]');
+      localStorage.setItem('decision_history', JSON.stringify([historyItem, ...savedHistory]));
     } catch (error) {
       console.error('Analysis failed:', error);
     } finally {
@@ -91,74 +102,34 @@ export default function Home() {
 
   if (results) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-        <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-          <div className="container flex h-16 items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Brain className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">Decision Simulator</span>
-            </div>
-            <LanguageSwitcher />
-          </div>
-        </header>
-        <main className="container py-8">
-          <AnalysisResults results={results} onStartNew={handleStartNew} debateLogs={debateLogs} advancedAnalysis={completeAnalysis} />
-        </main>
+      <div className="container py-8">
+        <AnalysisResults results={results} onStartNew={handleStartNew} debateLogs={debateLogs} advancedAnalysis={completeAnalysis} />
       </div>
     );
   }
 
   if (showInput) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-        <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-          <div className="container flex h-16 items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Brain className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">Decision Simulator</span>
-            </div>
-            <LanguageSwitcher />
-          </div>
-        </header>
-        <main className="container py-8 max-w-3xl">
-	          {isAnalyzing ? (
-	            <AnalysisProgress 
-	              steps={analysisSteps} 
-	              currentStep={currentStep} 
-	              overallProgress={overallProgress} 
-                logs={debateLogs}
-	            />
-	          ) : (
-            <DecisionInputForm onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
-          )}
-        </main>
+      <div className="container py-8 max-w-3xl">
+        {isAnalyzing ? (
+          <AnalysisProgress 
+            steps={analysisSteps} 
+            currentStep={currentStep} 
+            overallProgress={overallProgress} 
+            logs={debateLogs}
+          />
+        ) : (
+          <DecisionInputForm onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
+        )}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Brain className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold">Decision Simulator</span>
-          </div>
-          <nav className="flex items-center gap-6">
-            <Link href="/about">
-              <a className="text-sm font-medium hover:text-primary transition-colors">
-                {t('nav.about')}
-              </a>
-            </Link>
-            <LanguageSwitcher />
-          </nav>
-        </div>
-      </header>
-
+    <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="flex-1 flex items-center justify-center bg-gradient-to-b from-background via-primary/5 to-accent/5">
-        <div className="container py-24 text-center space-y-8">
+      <section className="py-24 bg-gradient-to-b from-background via-primary/5 to-accent/5">
+        <div className="container text-center space-y-8">
           <div className="space-y-4 max-w-3xl mx-auto">
             <h1 className="text-5xl font-bold tracking-tight sm:text-6xl bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
               {t('hero.title')}
@@ -179,8 +150,8 @@ export default function Home() {
           </div>
 
           {/* Feature Cards */}
-          <div className="grid md:grid-cols-3 gap-6 mt-16 max-w-5xl mx-auto">
-            <div className="p-6 rounded-lg border bg-card text-left space-y-2">
+          <div id="features" className="grid md:grid-cols-3 gap-6 mt-16 max-w-5xl mx-auto">
+            <div className="p-6 rounded-lg border bg-card text-left space-y-2 hover:shadow-lg transition-shadow">
               <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
                 <TrendingUp className="h-6 w-6 text-primary" />
               </div>
@@ -190,7 +161,7 @@ export default function Home() {
               </p>
             </div>
             
-            <div className="p-6 rounded-lg border bg-card text-left space-y-2">
+            <div className="p-6 rounded-lg border bg-card text-left space-y-2 hover:shadow-lg transition-shadow">
               <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center">
                 <Brain className="h-6 w-6 text-accent" />
               </div>
@@ -200,7 +171,7 @@ export default function Home() {
               </p>
             </div>
             
-            <div className="p-6 rounded-lg border bg-card text-left space-y-2">
+            <div className="p-6 rounded-lg border bg-card text-left space-y-2 hover:shadow-lg transition-shadow">
               <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Eye className="h-6 w-6 text-primary" />
               </div>
@@ -213,13 +184,18 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t py-8 bg-muted/30">
-        <div className="container text-center space-y-2">
-          <p className="text-sm text-muted-foreground">{t('footer.tagline')}</p>
-          <p className="text-xs text-muted-foreground">{t('footer.copyright')}</p>
+      {/* Trust Section */}
+      <section className="py-20 border-y bg-muted/20">
+        <div className="container text-center">
+          <h2 className="text-2xl font-bold mb-12">Powered by Advanced Decision Science</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 opacity-60 grayscale">
+            <div className="flex items-center justify-center font-bold text-xl italic">Game Theory</div>
+            <div className="flex items-center justify-center font-bold text-xl italic">Monte Carlo</div>
+            <div className="flex items-center justify-center font-bold text-xl italic">Bayesian Logic</div>
+            <div className="flex items-center justify-center font-bold text-xl italic">Systems Thinking</div>
+          </div>
         </div>
-      </footer>
+      </section>
     </div>
   );
 }
