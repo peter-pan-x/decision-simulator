@@ -2,12 +2,12 @@
 export const AI_CONFIG = {
   openai: {
     apiKey: import.meta.env.VITE_OPENAI_API_KEY || 'mock-openai-key',
-    model: 'gpt-4-turbo-preview',
-    baseURL: 'https://api.openai.com/v1',
+    model: 'gpt-4o',
+    baseURL: import.meta.env.VITE_OPENAI_BASE_URL || 'https://api.openai.com/v1',
   },
   claude: {
     apiKey: import.meta.env.VITE_CLAUDE_API_KEY || 'mock-claude-key',
-    model: 'claude-3-opus-20240229',
+    model: 'claude-3-5-sonnet-20240620',
     baseURL: 'https://api.anthropic.com/v1',
   },
   gemini: {

@@ -9,6 +9,7 @@ export function getOpenAIClient(): OpenAI {
   if (!openaiClient) {
     openaiClient = new OpenAI({
       apiKey: AI_CONFIG.openai.apiKey,
+      baseURL: AI_CONFIG.openai.baseURL,
       dangerouslyAllowBrowser: true, // 仅用于演示,生产环境应使用后端代理
     });
   }
@@ -46,7 +47,7 @@ export async function callOpenAI(prompt: string, systemPrompt?: string): Promise
   });
 
   const response = await client.chat.completions.create({
-    model: 'gpt-4-turbo-preview',
+    model: AI_CONFIG.openai.model,
     messages,
     temperature: 0.7,
     max_tokens: 2000,

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle2, Loader2, Circle } from 'lucide-react';
+import { CheckCircle2, Loader2, Circle, MessageSquare, ShieldAlert, TrendingUp, Brain } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { DebateLog } from '@/lib/aiAgents/types';
 
 export interface AnalysisStep {
   id: string;
@@ -16,9 +17,10 @@ interface AnalysisProgressProps {
   steps: AnalysisStep[];
   currentStep: number;
   overallProgress: number;
+  logs?: DebateLog[];
 }
 
-export default function AnalysisProgress({ steps, currentStep, overallProgress }: AnalysisProgressProps) {
+export default function AnalysisProgress({ steps, currentStep, overallProgress, logs }: AnalysisProgressProps) {
   const { t } = useTranslation();
   const [dots, setDots] = useState('');
 
@@ -107,6 +109,37 @@ export default function AnalysisProgress({ steps, currentStep, overallProgress }
             </div>
           ))}
         </div>
+
+        {/* Debate Logs */}
+        {logs && logs.length > 0 && (
+          <div className="space-y-3 pt-4 border-t">
+            <h4 className="text-sm font-semibold flex items-center gap-2">
+              <Brain className="h-4 w-4 text-primary" />
+              Multi-Agent Dialectical Reasoning
+            </h4>
+            <div className="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+              {logs.map((log, i) => (
+                <div key={i} className="text-xs p-2 rounded bg-muted/50 border-l-2 border-primary/30 animate-in fade-in slide-in-from-left-2">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="font-bold flex items-center gap-1">
+                      {log.role === 'optimist' && <TrendingUp className="h-3 w-3 text-green-500" />}
+                      {log.role === 'cynic' && <ShieldAlert className="h-3 w-3 text-red-500" />}
+                      {log.role === 'synthesizer' && <Brain className="h-3 w-3 text-blue-500" />}
+                      {log.agent}
+                    </span>
+                    <span className="text-[10px] opacity-50">{new Date(log.timestamp).toLocaleTimeString()}</span>
+                  </div>
+                  <p className="leading-relaxed">{log.message}</p>
+                  {log.thoughtProcess && (
+                    <p className="mt-1 italic opacity-70 border-t border-primary/10 pt-1">
+                      Thinking: {log.thoughtProcess}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Estimated Time */}
         <div className="text-center text-sm text-muted-foreground pt-4 border-t">

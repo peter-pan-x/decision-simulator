@@ -178,6 +178,33 @@ export interface ActionStep {
   importance: 'critical' | 'high' | 'medium' | 'low';
 }
 
+// 辩证式推演
+export interface DebateLog {
+  agent: string;
+  role: 'optimist' | 'cynic' | 'synthesizer' | 'futurist' | 'coordinator';
+  message: string;
+  timestamp: number;
+  thoughtProcess?: string;
+}
+
+// 高级推演结果
+export interface GameTheoryResult {
+  payoffMatrix: Record<string, Record<string, number>>;
+  nashEquilibrium: string;
+  strategicInsights: string[];
+}
+
+export interface ScenarioResult {
+  name: string;
+  probability: number;
+  description: string;
+  implications: string[];
+}
+
+export interface CausalChainResult {
+  chains: string[][];
+}
+
 // 完整的分析结果
 export interface CompleteAnalysis {
   decisionStructure: DecisionStructure;
@@ -186,5 +213,8 @@ export interface CompleteAnalysis {
   multiDimensionalAnalysis: MultiDimensionalAnalysis;
   riskAnalysis: RiskAnalysis;
   finalReport: FinalDecisionReport;
+  debateLogs?: DebateLog[];
+  gameTheory?: GameTheoryResult;
+  scenarios?: ScenarioResult[];
+  causalChains?: CausalChainResult;
 }
-

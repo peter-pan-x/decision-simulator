@@ -7,6 +7,7 @@ import DecisionInputForm, { DecisionInput } from '@/components/DecisionInput';
 import AnalysisResults, { OptionAnalysis } from '@/components/AnalysisResults';
 import AnalysisProgress, { AnalysisStep } from '@/components/AnalysisProgress';
 import { Brain, Sparkles, TrendingUp, Eye } from 'lucide-react';
+import { DebateLog } from '@/lib/aiAgents/types';
 
 export default function Home() {
   const { t } = useTranslation();
@@ -16,6 +17,8 @@ export default function Home() {
   const [analysisSteps, setAnalysisSteps] = useState<AnalysisStep[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [overallProgress, setOverallProgress] = useState(0);
+  const [debateLogs, setDebateLogs] = useState<DebateLog[]>([]);
+  const [completeAnalysis, setCompleteAnalysis] = useState<any>(null);
 
   const handleAnalyze = async (data: DecisionInput) => {
     setIsAnalyzing(true);
@@ -23,11 +26,12 @@ export default function Home() {
     // 初始化分析步骤
     const steps: AnalysisStep[] = [
       { id: '1', name: 'Decision Deconstructor', status: 'pending', progress: 0 },
-      { id: '2', name: 'Probability Calculator', status: 'pending', progress: 0 },
-      { id: '3', name: 'Timeline Simulator', status: 'pending', progress: 0 },
-      { id: '4', name: 'Multi-dimensional Evaluator', status: 'pending', progress: 0 },
-      { id: '5', name: 'Risk Analyst', status: 'pending', progress: 0 },
-      { id: '6', name: 'Decision Coordinator', status: 'pending', progress: 0 },
+      { id: '2', name: 'Dialectical Reasoning', status: 'pending', progress: 0 },
+      { id: '3', name: 'Probability Calculator', status: 'pending', progress: 0 },
+      { id: '4', name: 'Timeline Simulator', status: 'pending', progress: 0 },
+      { id: '5', name: 'Multi-dimensional Evaluator', status: 'pending', progress: 0 },
+      { id: '6', name: 'Risk Analyst', status: 'pending', progress: 0 },
+      { id: '7', name: 'Decision Coordinator', status: 'pending', progress: 0 },
     ];
     setAnalysisSteps(steps);
     setCurrentStep(0);
@@ -40,15 +44,19 @@ export default function Home() {
       const completeAnalysis = await runCompleteAnalysis(data, (progress) => {
         // 更新进度
         setOverallProgress(progress.progress);
+        if (progress.logs) {
+          setDebateLogs(progress.logs);
+        }
         
         // 根据阶段更新步骤状态
         const stageToStep: { [key: string]: number } = {
           'deconstruction': 0,
-          'probability': 1,
-          'timeline': 2,
-          'multidimensional': 3,
-          'risk': 4,
-          'integration': 5,
+          'dialectical': 1,
+          'probability': 2,
+          'timeline': 3,
+          'multidimensional': 4,
+          'risk': 5,
+          'integration': 6,
         };
         
         const stepIndex = stageToStep[progress.stage];
@@ -68,6 +76,7 @@ export default function Home() {
       // 转换为UI兼容格式
       const analysisResults = convertToLegacyFormat(completeAnalysis, data);
       setResults(analysisResults);
+      setCompleteAnalysis(completeAnalysis);
     } catch (error) {
       console.error('Analysis failed:', error);
     } finally {
@@ -93,7 +102,7 @@ export default function Home() {
           </div>
         </header>
         <main className="container py-8">
-          <AnalysisResults results={results} onStartNew={handleStartNew} />
+          <AnalysisResults results={results} onStartNew={handleStartNew} debateLogs={debateLogs} advancedAnalysis={completeAnalysis} />
         </main>
       </div>
     );
@@ -112,13 +121,14 @@ export default function Home() {
           </div>
         </header>
         <main className="container py-8 max-w-3xl">
-          {isAnalyzing ? (
-            <AnalysisProgress 
-              steps={analysisSteps} 
-              currentStep={currentStep} 
-              overallProgress={overallProgress} 
-            />
-          ) : (
+	          {isAnalyzing ? (
+	            <AnalysisProgress 
+	              steps={analysisSteps} 
+	              currentStep={currentStep} 
+	              overallProgress={overallProgress} 
+                logs={debateLogs}
+	            />
+	          ) : (
             <DecisionInputForm onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
           )}
         </main>
