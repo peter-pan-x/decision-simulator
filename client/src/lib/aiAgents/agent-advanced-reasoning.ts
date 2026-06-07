@@ -1,5 +1,5 @@
-import { DecisionInput, DecisionStructure, DebateLog } from './types';
-import { MODEL_ROUTES, USE_MOCK_AI } from '../aiConfig';
+import { DecisionInput, DecisionStructure, DebateLog } from "./types";
+import { MODEL_ROUTES, USE_MOCK_AI } from "../aiConfig";
 
 export interface GameTheoryAnalysis {
   payoffMatrix: Record<string, Record<string, number>>;
@@ -40,14 +40,14 @@ export async function analyzeGameTheory(
   }
 
   try {
-    const { callDeepSeek, parseJSONResponse } = await import('./apiClients');
+    const { callDeepSeek, parseJSONResponse } = await import("./apiClients");
 
     addLog({
-      agent: 'Game-Theorist',
-      role: 'synthesizer',
-      message: 'Analyzing strategic interactions and competitive dynamics...',
+      agent: "Game-Theorist",
+      role: "synthesizer",
+      message: "Analyzing strategic interactions and competitive dynamics...",
       timestamp: Date.now(),
-      thoughtProcess: 'Building payoff matrices for each option pair.'
+      thoughtProcess: "Building payoff matrices for each option pair.",
     });
 
     const prompt = `Analyze the strategic game theory implications of these options:
@@ -67,27 +67,31 @@ export async function analyzeGameTheory(
       "strategicInsights": ["..."]
     }`;
 
-    const response = await callDeepSeek(prompt, "You are a game theory expert analyzing strategic decisions.", {
-      tier: MODEL_ROUTES.advancedReasoning,
-      temperature: 0.35,
-    });
+    const response = await callDeepSeek(
+      prompt,
+      "You are a game theory expert analyzing strategic decisions.",
+      {
+        tier: MODEL_ROUTES.advancedReasoning,
+        temperature: 0.35,
+      }
+    );
     const parsed = parseJSONResponse(response);
 
     addLog({
-      agent: 'Game-Theorist',
-      role: 'synthesizer',
+      agent: "Game-Theorist",
+      role: "synthesizer",
       message: `Nash Equilibrium identified: ${parsed.nashEquilibrium}`,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     return {
       payoffMatrix: parsed.payoffMatrix || {},
-      nashEquilibrium: parsed.nashEquilibrium || 'Mixed strategy',
+      nashEquilibrium: parsed.nashEquilibrium || "Mixed strategy",
       strategicInsights: parsed.strategicInsights || [],
-      logs
+      logs,
     };
   } catch (error) {
-    console.error('Game theory analysis failed:', error);
+    console.info("Game theory analysis using fallback:", error);
     return mockGameTheoryAnalysis(input, addLog);
   }
 }
@@ -112,14 +116,15 @@ export async function analyzeAdvancedScenarios(
   }
 
   try {
-    const { callDeepSeek, parseJSONResponse } = await import('./apiClients');
+    const { callDeepSeek, parseJSONResponse } = await import("./apiClients");
 
     addLog({
-      agent: 'Futurist',
-      role: 'futurist',
-      message: 'Generating alternative future scenarios...',
+      agent: "Futurist",
+      role: "futurist",
+      message: "Generating alternative future scenarios...",
       timestamp: Date.now(),
-      thoughtProcess: 'Considering black swan events, exponential growth, and systemic shifts.'
+      thoughtProcess:
+        "Considering black swan events, exponential growth, and systemic shifts.",
     });
 
     await delay(2000);
@@ -153,25 +158,29 @@ export async function analyzeAdvancedScenarios(
       ]
     }`;
 
-    const response = await callDeepSeek(prompt, "You are a futurist and scenario planner.", {
-      tier: MODEL_ROUTES.advancedReasoning,
-      temperature: 0.65,
-    });
+    const response = await callDeepSeek(
+      prompt,
+      "You are a futurist and scenario planner.",
+      {
+        tier: MODEL_ROUTES.advancedReasoning,
+        temperature: 0.65,
+      }
+    );
     const parsed = parseJSONResponse(response);
 
     addLog({
-      agent: 'Futurist',
-      role: 'futurist',
+      agent: "Futurist",
+      role: "futurist",
       message: `Generated ${parsed.scenarios?.length || 5} distinct future scenarios.`,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     return {
       scenarios: parsed.scenarios || [],
-      logs
+      logs,
     };
   } catch (error) {
-    console.error('Advanced scenario analysis failed:', error);
+    console.info("Scenario analysis using fallback:", error);
     return mockAdvancedScenarios(input, addLog);
   }
 }
@@ -196,14 +205,15 @@ export async function analyzeCausalChains(
   }
 
   try {
-    const { callDeepSeek, parseJSONResponse } = await import('./apiClients');
+    const { callDeepSeek, parseJSONResponse } = await import("./apiClients");
 
     addLog({
-      agent: 'Causal-Analyst',
-      role: 'synthesizer',
-      message: 'Tracing deep causal chains and second-order effects...',
+      agent: "Causal-Analyst",
+      role: "synthesizer",
+      message: "Tracing deep causal chains and second-order effects...",
       timestamp: Date.now(),
-      thoughtProcess: 'Following causal links through 5+ levels of indirection.'
+      thoughtProcess:
+        "Following causal links through 5+ levels of indirection.",
     });
 
     await delay(2500);
@@ -227,155 +237,215 @@ export async function analyzeCausalChains(
       ]
     }`;
 
-    const response = await callDeepSeek(prompt, "You are a systems analyst expert in causal reasoning.", {
-      tier: MODEL_ROUTES.advancedReasoning,
-      temperature: 0.3,
-    });
+    const response = await callDeepSeek(
+      prompt,
+      "You are a systems analyst expert in causal reasoning.",
+      {
+        tier: MODEL_ROUTES.advancedReasoning,
+        temperature: 0.3,
+      }
+    );
     const parsed = parseJSONResponse(response);
 
     addLog({
-      agent: 'Causal-Analyst',
-      role: 'synthesizer',
+      agent: "Causal-Analyst",
+      role: "synthesizer",
       message: `Identified ${parsed.chains?.length || 0} deep causal chains with feedback loops.`,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     return {
       chains: parsed.chains || [],
-      logs
+      logs,
     };
   } catch (error) {
-    console.error('Causal chain analysis failed:', error);
+    console.info("Causal chain analysis using fallback:", error);
     return mockCausalChains(input, addLog);
   }
 }
 
 // Mock implementations
-async function mockGameTheoryAnalysis(input: DecisionInput, addLog: (log: DebateLog) => void): Promise<GameTheoryAnalysis> {
+async function mockGameTheoryAnalysis(
+  input: DecisionInput,
+  addLog: (log: DebateLog) => void
+): Promise<GameTheoryAnalysis> {
   await delay(2000);
-  
+
   addLog({
-    agent: 'Game-Theorist',
-    role: 'synthesizer',
-    message: 'Analyzing strategic interactions between options...',
-    timestamp: Date.now()
+    agent: "Game-Theorist",
+    role: "synthesizer",
+    message: "Analyzing strategic interactions between options...",
+    timestamp: Date.now(),
   });
 
   await delay(1500);
 
   addLog({
-    agent: 'Game-Theorist',
-    role: 'synthesizer',
-    message: 'Nash Equilibrium: Mixed strategy with 60% allocation to Option 1.',
-    timestamp: Date.now()
+    agent: "Game-Theorist",
+    role: "synthesizer",
+    message:
+      "Nash Equilibrium: Mixed strategy with 60% allocation to Option 1.",
+    timestamp: Date.now(),
   });
 
   return {
     payoffMatrix: {
-      'Option1-Option2': { 'Option1': 75, 'Option2': 65 },
-      'Option1-Option3': { 'Option1': 70, 'Option3': 60 }
+      "Option1-Option2": { Option1: 75, Option2: 65 },
+      "Option1-Option3": { Option1: 70, Option3: 60 },
     },
-    nashEquilibrium: 'Mixed strategy equilibrium',
+    nashEquilibrium: "Mixed strategy equilibrium",
     strategicInsights: [
-      'Option 1 dominates in most pairwise comparisons',
-      'Option 2 provides insurance against downside risk',
-      'Optimal strategy involves portfolio approach'
+      "Option 1 dominates in most pairwise comparisons",
+      "Option 2 provides insurance against downside risk",
+      "Optimal strategy involves portfolio approach",
     ],
-    logs: []
+    logs: [],
   };
 }
 
-async function mockAdvancedScenarios(input: DecisionInput, addLog: (log: DebateLog) => void): Promise<ScenarioAnalysis> {
+async function mockAdvancedScenarios(
+  input: DecisionInput,
+  addLog: (log: DebateLog) => void
+): Promise<ScenarioAnalysis> {
   await delay(3000);
 
   addLog({
-    agent: 'Futurist',
-    role: 'futurist',
-    message: 'Scenario 1: Exponential growth trajectory identified.',
-    timestamp: Date.now()
+    agent: "Futurist",
+    role: "futurist",
+    message: "Scenario 1: Exponential growth trajectory identified.",
+    timestamp: Date.now(),
   });
 
   await delay(1500);
 
   addLog({
-    agent: 'Futurist',
-    role: 'futurist',
-    message: 'Scenario 2: Black swan event - market disruption.',
-    timestamp: Date.now()
+    agent: "Futurist",
+    role: "futurist",
+    message: "Scenario 2: Black swan event - market disruption.",
+    timestamp: Date.now(),
   });
 
   await delay(1500);
 
   addLog({
-    agent: 'Futurist',
-    role: 'futurist',
-    message: 'Scenario 3: Regulatory shift - new compliance requirements.',
-    timestamp: Date.now()
+    agent: "Futurist",
+    role: "futurist",
+    message: "Scenario 3: Regulatory shift - new compliance requirements.",
+    timestamp: Date.now(),
   });
 
   return {
     scenarios: [
       {
-        name: 'Exponential Growth',
+        name: "Exponential Growth",
         probability: 0.25,
-        description: 'Market conditions favor rapid expansion and scaling.',
-        implications: ['Option 1 scales best', 'High capital requirements', 'Competitive advantage widens']
+        description: "Market conditions favor rapid expansion and scaling.",
+        implications: [
+          "Option 1 scales best",
+          "High capital requirements",
+          "Competitive advantage widens",
+        ],
       },
       {
-        name: 'Market Stagnation',
+        name: "Market Stagnation",
         probability: 0.35,
-        description: 'Economic slowdown limits growth opportunities.',
-        implications: ['Option 2 provides stability', 'Cost control becomes critical', 'Diversification valuable']
+        description: "Economic slowdown limits growth opportunities.",
+        implications: [
+          "Option 2 provides stability",
+          "Cost control becomes critical",
+          "Diversification valuable",
+        ],
       },
       {
-        name: 'Regulatory Disruption',
-        probability: 0.20,
-        description: 'New regulations reshape the competitive landscape.',
-        implications: ['Compliance costs rise', 'Barriers to entry increase', 'Consolidation likely']
+        name: "Regulatory Disruption",
+        probability: 0.2,
+        description: "New regulations reshape the competitive landscape.",
+        implications: [
+          "Compliance costs rise",
+          "Barriers to entry increase",
+          "Consolidation likely",
+        ],
       },
       {
-        name: 'Technological Disruption',
+        name: "Technological Disruption",
         probability: 0.15,
-        description: 'New technology makes current approach obsolete.',
-        implications: ['Existing advantages disappear', 'First-mover advantage critical', 'Flexibility essential']
+        description: "New technology makes current approach obsolete.",
+        implications: [
+          "Existing advantages disappear",
+          "First-mover advantage critical",
+          "Flexibility essential",
+        ],
       },
       {
-        name: 'Geopolitical Crisis',
+        name: "Geopolitical Crisis",
         probability: 0.05,
-        description: 'Major geopolitical event disrupts markets.',
-        implications: ['Risk management paramount', 'Geographic diversification critical', 'Liquidity essential']
-      }
+        description: "Major geopolitical event disrupts markets.",
+        implications: [
+          "Risk management paramount",
+          "Geographic diversification critical",
+          "Liquidity essential",
+        ],
+      },
     ],
-    logs: []
+    logs: [],
   };
 }
 
-async function mockCausalChains(input: DecisionInput, addLog: (log: DebateLog) => void): Promise<{ chains: string[][]; logs: DebateLog[] }> {
+async function mockCausalChains(
+  input: DecisionInput,
+  addLog: (log: DebateLog) => void
+): Promise<{ chains: string[][]; logs: DebateLog[] }> {
   await delay(2500);
 
   addLog({
-    agent: 'Causal-Analyst',
-    role: 'synthesizer',
-    message: 'Tracing causal chain: Decision → Immediate Effect → Secondary Effect...',
-    timestamp: Date.now()
+    agent: "Causal-Analyst",
+    role: "synthesizer",
+    message:
+      "Tracing causal chain: Decision → Immediate Effect → Secondary Effect...",
+    timestamp: Date.now(),
   });
 
   await delay(2000);
 
   addLog({
-    agent: 'Causal-Analyst',
-    role: 'synthesizer',
-    message: 'Identified 4 major feedback loops with amplification effects.',
-    timestamp: Date.now()
+    agent: "Causal-Analyst",
+    role: "synthesizer",
+    message: "Identified 4 major feedback loops with amplification effects.",
+    timestamp: Date.now(),
   });
 
   return {
     chains: [
-      ['Higher Income', 'Increased Financial Security', 'Reduced Stress', 'Better Health', 'Increased Productivity', 'Career Advancement'],
-      ['Career Growth', 'Skill Development', 'Market Value Increase', 'Salary Growth', 'Financial Stability'],
-      ['Work-Life Balance', 'Family Relationships', 'Social Support', 'Stress Reduction', 'Mental Health'],
-      ['Location Change', 'Social Network Reset', 'Relationship Strain', 'Stress Increase', 'Performance Decline']
+      [
+        "Higher Income",
+        "Increased Financial Security",
+        "Reduced Stress",
+        "Better Health",
+        "Increased Productivity",
+        "Career Advancement",
+      ],
+      [
+        "Career Growth",
+        "Skill Development",
+        "Market Value Increase",
+        "Salary Growth",
+        "Financial Stability",
+      ],
+      [
+        "Work-Life Balance",
+        "Family Relationships",
+        "Social Support",
+        "Stress Reduction",
+        "Mental Health",
+      ],
+      [
+        "Location Change",
+        "Social Network Reset",
+        "Relationship Strain",
+        "Stress Increase",
+        "Performance Decline",
+      ],
     ],
-    logs: []
+    logs: [],
   };
 }

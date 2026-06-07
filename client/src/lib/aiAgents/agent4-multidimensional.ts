@@ -6,8 +6,8 @@ import {
   DimensionScore,
   Tradeoff,
   Synergy,
-} from './types';
-import { MODEL_ROUTES, USE_MOCK_AI } from '../aiConfig';
+} from "./types";
+import { MODEL_ROUTES, USE_MOCK_AI } from "../aiConfig";
 
 /**
  * AI Agent 4: 多维度评估专家
@@ -24,23 +24,24 @@ export async function analyzeMultiDimensional(
   }
 
   try {
-    const { callDeepSeek, parseJSONResponse } = await import('./apiClients');
+    const { callDeepSeek, parseJSONResponse } = await import("./apiClients");
     const prompt = buildMultiDimensionalPrompt(input, structure, timeline);
-    const systemPrompt = 'You are a multi-dimensional decision analysis expert. Respond with valid JSON only.';
-    
+    const systemPrompt =
+      "You are a multi-dimensional decision analysis expert. Respond with valid JSON only.";
+
     const response = await callDeepSeek(prompt, systemPrompt, {
       tier: MODEL_ROUTES.multidimensional,
       temperature: 0.35,
     });
     const parsed = parseJSONResponse(response);
-    
+
     return {
       dimensions: parsed.dimensions || [],
       tradeoffs: parsed.tradeoffs || [],
       synergies: parsed.synergies || [],
     };
   } catch (error) {
-    console.error('DeepSeek API failed, falling back to mock:', error);
+    console.info("DeepSeek unavailable; using demo analysis:", error);
     return mockAnalyzeMultiDimensional(input, structure, timeline);
   }
 }
@@ -54,7 +55,7 @@ function buildMultiDimensionalPrompt(
 You are a multi-dimensional decision analysis expert. Evaluate this decision across multiple dimensions.
 
 Decision: ${input.question}
-Dimensions to analyze: ${input.dimensions.join(', ')}
+Dimensions to analyze: ${input.dimensions.join(", ")}
 
 For each dimension, provide:
 1. Score (0-100)
@@ -75,14 +76,15 @@ function mockAnalyzeMultiDimensional(
   structure: DecisionStructure,
   timeline: TimelineSimulation
 ): MultiDimensionalAnalysis {
-  const dimensions: DimensionScore[] = input.dimensions.map((dim) => {
+  const dimensions: DimensionScore[] = input.dimensions.map(dim => {
     const baseScore = 50 + Math.random() * 40;
-    const trend = baseScore > 70 ? 'improving' : baseScore < 40 ? 'declining' : 'stable';
-    
+    const trend =
+      baseScore > 70 ? "improving" : baseScore < 40 ? "declining" : "stable";
+
     return {
       dimension: dim,
       score: Math.round(baseScore),
-      trend: trend as 'improving' | 'stable' | 'declining',
+      trend: trend as "improving" | "stable" | "declining",
       details: generateDimensionDetails(dim, baseScore),
       subScores: generateSubScores(dim),
     };
@@ -99,18 +101,28 @@ function mockAnalyzeMultiDimensional(
 }
 
 function generateDimensionDetails(dimension: string, score: number): string {
-  const quality = score > 70 ? 'strong positive' : score > 50 ? 'moderate positive' : score > 30 ? 'neutral' : 'concerning';
-  
+  const quality =
+    score > 70
+      ? "strong positive"
+      : score > 50
+        ? "moderate positive"
+        : score > 30
+          ? "neutral"
+          : "concerning";
+
   const details: Record<string, string> = {
-    financial: `Financial outlook shows ${quality} indicators. Income potential, expense management, and long-term wealth building are ${score > 60 ? 'favorable' : 'requiring attention'}.`,
-    career: `Career trajectory demonstrates ${quality} momentum. Professional growth, skill development, and advancement opportunities are ${score > 60 ? 'promising' : 'limited'}.`,
-    lifestyle: `Lifestyle quality reflects ${quality} conditions. Work-life balance, personal time, and daily satisfaction are ${score > 60 ? 'well-maintained' : 'under pressure'}.`,
-    relationships: `Relationship dynamics show ${quality} patterns. Family bonds, friendships, and social connections are ${score > 60 ? 'thriving' : 'strained'}.`,
-    health: `Health indicators present ${quality} status. Physical wellness, mental health, and stress levels are ${score > 60 ? 'optimal' : 'concerning'}.`,
-    time: `Time management exhibits ${quality} efficiency. Available time, scheduling flexibility, and personal freedom are ${score > 60 ? 'abundant' : 'constrained'}.`,
+    financial: `Financial outlook shows ${quality} indicators. Income potential, expense management, and long-term wealth building are ${score > 60 ? "favorable" : "requiring attention"}.`,
+    career: `Career trajectory demonstrates ${quality} momentum. Professional growth, skill development, and advancement opportunities are ${score > 60 ? "promising" : "limited"}.`,
+    lifestyle: `Lifestyle quality reflects ${quality} conditions. Work-life balance, personal time, and daily satisfaction are ${score > 60 ? "well-maintained" : "under pressure"}.`,
+    relationships: `Relationship dynamics show ${quality} patterns. Family bonds, friendships, and social connections are ${score > 60 ? "thriving" : "strained"}.`,
+    health: `Health indicators present ${quality} status. Physical wellness, mental health, and stress levels are ${score > 60 ? "optimal" : "concerning"}.`,
+    time: `Time management exhibits ${quality} efficiency. Available time, scheduling flexibility, and personal freedom are ${score > 60 ? "abundant" : "constrained"}.`,
   };
 
-  return details[dimension] || `${dimension} shows ${quality} performance across key metrics.`;
+  return (
+    details[dimension] ||
+    `${dimension} shows ${quality} performance across key metrics.`
+  );
 }
 
 function generateSubScores(dimension: string): Record<string, number> {
@@ -153,25 +165,55 @@ function generateSubScores(dimension: string): Record<string, number> {
     },
   };
 
-  return subScores[dimension] || {
-    aspect1: 50 + Math.random() * 40,
-    aspect2: 50 + Math.random() * 40,
-  };
+  return (
+    subScores[dimension] || {
+      aspect1: 50 + Math.random() * 40,
+      aspect2: 50 + Math.random() * 40,
+    }
+  );
 }
 
 function generateTradeoffs(dimensions: string[]): Tradeoff[] {
   const tradeoffs: Tradeoff[] = [];
-  
+
   const commonTradeoffs = [
-    { dim1: 'financial', dim2: 'time', desc: 'Higher income often requires more time investment', severity: 0.7 },
-    { dim1: 'career', dim2: 'lifestyle', desc: 'Career advancement may compromise work-life balance', severity: 0.6 },
-    { dim1: 'financial', dim2: 'relationships', desc: 'Pursuing financial goals might strain personal relationships', severity: 0.5 },
-    { dim1: 'career', dim2: 'health', desc: 'Career pressure can negatively impact health and wellness', severity: 0.6 },
-    { dim1: 'time', dim2: 'financial', desc: 'More personal time may mean reduced earning potential', severity: 0.5 },
+    {
+      dim1: "financial",
+      dim2: "time",
+      desc: "Higher income often requires more time investment",
+      severity: 0.7,
+    },
+    {
+      dim1: "career",
+      dim2: "lifestyle",
+      desc: "Career advancement may compromise work-life balance",
+      severity: 0.6,
+    },
+    {
+      dim1: "financial",
+      dim2: "relationships",
+      desc: "Pursuing financial goals might strain personal relationships",
+      severity: 0.5,
+    },
+    {
+      dim1: "career",
+      dim2: "health",
+      desc: "Career pressure can negatively impact health and wellness",
+      severity: 0.6,
+    },
+    {
+      dim1: "time",
+      dim2: "financial",
+      desc: "More personal time may mean reduced earning potential",
+      severity: 0.5,
+    },
   ];
 
   for (const tradeoff of commonTradeoffs) {
-    if (dimensions.includes(tradeoff.dim1) && dimensions.includes(tradeoff.dim2)) {
+    if (
+      dimensions.includes(tradeoff.dim1) &&
+      dimensions.includes(tradeoff.dim2)
+    ) {
       tradeoffs.push({
         dimension1: tradeoff.dim1,
         dimension2: tradeoff.dim2,
@@ -186,27 +228,27 @@ function generateTradeoffs(dimensions: string[]): Tradeoff[] {
 
 function generateSynergies(dimensions: string[]): Synergy[] {
   const synergies: Synergy[] = [];
-  
+
   const commonSynergies = [
-    { 
-      dims: ['health', 'lifestyle'], 
-      desc: 'Good health and balanced lifestyle reinforce each other positively', 
-      mult: 1.3 
+    {
+      dims: ["health", "lifestyle"],
+      desc: "Good health and balanced lifestyle reinforce each other positively",
+      mult: 1.3,
     },
-    { 
-      dims: ['career', 'financial'], 
-      desc: 'Career growth and financial success create a virtuous cycle', 
-      mult: 1.4 
+    {
+      dims: ["career", "financial"],
+      desc: "Career growth and financial success create a virtuous cycle",
+      mult: 1.4,
     },
-    { 
-      dims: ['relationships', 'health'], 
-      desc: 'Strong relationships improve mental health and overall wellbeing', 
-      mult: 1.25 
+    {
+      dims: ["relationships", "health"],
+      desc: "Strong relationships improve mental health and overall wellbeing",
+      mult: 1.25,
     },
-    { 
-      dims: ['time', 'lifestyle'], 
-      desc: 'Time flexibility enhances lifestyle quality significantly', 
-      mult: 1.35 
+    {
+      dims: ["time", "lifestyle"],
+      desc: "Time flexibility enhances lifestyle quality significantly",
+      mult: 1.35,
     },
   ];
 

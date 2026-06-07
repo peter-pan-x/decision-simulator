@@ -7,8 +7,8 @@ import {
   TimeStage,
   Milestone,
   TurningPoint,
-} from './types';
-import { MODEL_ROUTES, USE_MOCK_AI } from '../aiConfig';
+} from "./types";
+import { MODEL_ROUTES, USE_MOCK_AI } from "../aiConfig";
 
 /**
  * AI Agent 3: 时序演化模拟器
@@ -25,23 +25,24 @@ export async function simulateTimeline(
   }
 
   try {
-    const { callDeepSeek, parseJSONResponse } = await import('./apiClients');
+    const { callDeepSeek, parseJSONResponse } = await import("./apiClients");
     const prompt = buildTimelinePrompt(input, structure, probabilities);
-    const systemPrompt = 'You are a future scenario expert. Respond with valid JSON only.';
-    
+    const systemPrompt =
+      "You are a future scenario expert. Respond with valid JSON only.";
+
     const response = await callDeepSeek(prompt, systemPrompt, {
       tier: MODEL_ROUTES.timeline,
       temperature: 0.45,
     });
     const parsed = parseJSONResponse(response);
-    
+
     return {
       timelines: parsed.timelines || [],
       keyMilestones: parsed.keyMilestones || [],
       turningPoints: parsed.turningPoints || [],
     };
   } catch (error) {
-    console.error('DeepSeek API failed, falling back to mock:', error);
+    console.info("DeepSeek unavailable; using demo analysis:", error);
     return mockSimulateTimeline(input, structure, probabilities);
   }
 }
@@ -55,11 +56,14 @@ function buildTimelinePrompt(
 You are a future scenario expert. Simulate how this decision evolves over time.
 
 Decision: ${input.question}
-Options: ${input.options.map(o => o.description).join(', ')}
+Options: ${input.options.map(o => o.description).join(", ")}
 Timeframe: ${input.timeframe}
 
-Variables: ${structure.variables.map(v => v.name).join(', ')}
-Most likely paths: ${probabilities.paths.filter(p => p.probability > 0.3).map(p => p.outcome).join(', ')}
+Variables: ${structure.variables.map(v => v.name).join(", ")}
+Most likely paths: ${probabilities.paths
+    .filter(p => p.probability > 0.3)
+    .map(p => p.outcome)
+    .join(", ")}
 
 For each option, describe the state at:
 - 3 months: Initial phase
@@ -92,39 +96,39 @@ function mockSimulateTimeline(
 
   const keyMilestones: Milestone[] = [
     {
-      time: '3_months',
-      description: 'Initial adaptation period completes',
+      time: "3_months",
+      description: "Initial adaptation period completes",
       impact: 0.6,
     },
     {
-      time: '1_year',
-      description: 'First major evaluation point',
+      time: "1_year",
+      description: "First major evaluation point",
       impact: 0.8,
     },
     {
-      time: '3_years',
-      description: 'Long-term patterns established',
+      time: "3_years",
+      description: "Long-term patterns established",
       impact: 0.9,
     },
   ];
 
   const turningPoints: TurningPoint[] = [
     {
-      time: '6_months',
-      description: 'Critical decision point: Continue or pivot',
+      time: "6_months",
+      description: "Critical decision point: Continue or pivot",
       probability: 0.3,
       consequences: [
-        'Could lead to accelerated growth',
-        'Or trigger reconsideration of the choice',
+        "Could lead to accelerated growth",
+        "Or trigger reconsideration of the choice",
       ],
     },
     {
-      time: '2_years',
-      description: 'Major life event or opportunity arises',
+      time: "2_years",
+      description: "Major life event or opportunity arises",
       probability: 0.4,
       consequences: [
-        'May open new unexpected paths',
-        'Could challenge current trajectory',
+        "May open new unexpected paths",
+        "Could challenge current trajectory",
       ],
     },
   ];
@@ -142,54 +146,54 @@ function generateTimeStages(
   isPositive: boolean
 ): TimeStage[] {
   const baseMultiplier = isPositive ? 1.2 : 0.9;
-  
+
   return [
     {
-      timepoint: '3_months',
+      timepoint: "3_months",
       state: generateVariableState(structure, 0.3, baseMultiplier),
       description: isPositive
-        ? 'Initial adjustment phase showing promising signs. New routines being established.'
-        : 'Adaptation challenges present. Working through initial difficulties.',
+        ? "Initial adjustment phase showing promising signs. New routines being established."
+        : "Adaptation challenges present. Working through initial difficulties.",
       events: [
-        'First impressions and reactions',
-        'Immediate lifestyle changes take effect',
-        'Initial feedback and results',
+        "First impressions and reactions",
+        "Immediate lifestyle changes take effect",
+        "Initial feedback and results",
       ],
     },
     {
-      timepoint: '1_year',
+      timepoint: "1_year",
       state: generateVariableState(structure, 0.6, baseMultiplier),
       description: isPositive
-        ? 'Solid foundation built. Clear progress visible in multiple areas.'
-        : 'Mixed results emerging. Some areas improving, others still challenging.',
+        ? "Solid foundation built. Clear progress visible in multiple areas."
+        : "Mixed results emerging. Some areas improving, others still challenging.",
       events: [
-        'First major milestone reached',
-        'Patterns and habits solidified',
-        'Relationships and networks evolving',
+        "First major milestone reached",
+        "Patterns and habits solidified",
+        "Relationships and networks evolving",
       ],
     },
     {
-      timepoint: '3_years',
+      timepoint: "3_years",
       state: generateVariableState(structure, 0.85, baseMultiplier),
       description: isPositive
-        ? 'Significant achievements realized. Benefits compounding over time.'
-        : 'Long-term challenges becoming apparent. Reevaluation may be needed.',
+        ? "Significant achievements realized. Benefits compounding over time."
+        : "Long-term challenges becoming apparent. Reevaluation may be needed.",
       events: [
-        'Major life changes integrated',
-        'Career trajectory clearly defined',
-        'Long-term impacts on relationships visible',
+        "Major life changes integrated",
+        "Career trajectory clearly defined",
+        "Long-term impacts on relationships visible",
       ],
     },
     {
-      timepoint: '5_years',
+      timepoint: "5_years",
       state: generateVariableState(structure, 1.0, baseMultiplier),
       description: isPositive
-        ? 'Full potential realized. Decision proved beneficial in the long run.'
-        : 'Consequences fully manifested. Lessons learned, adjustments made.',
+        ? "Full potential realized. Decision proved beneficial in the long run."
+        : "Consequences fully manifested. Lessons learned, adjustments made.",
       events: [
-        'Ultimate outcomes crystallized',
-        'Life trajectory significantly altered',
-        'Legacy of the decision clear',
+        "Ultimate outcomes crystallized",
+        "Life trajectory significantly altered",
+        "Legacy of the decision clear",
       ],
     },
   ];
@@ -201,12 +205,12 @@ function generateVariableState(
   multiplier: number
 ): Record<string, number> {
   const state: Record<string, number> = {};
-  
-  structure.variables.forEach((variable) => {
+
+  structure.variables.forEach(variable => {
     const base = variable.initialValue || 50;
     const change = (Math.random() * 40 - 20) * timeProgress * multiplier;
     state[variable.id] = Math.max(0, Math.min(100, base + change));
   });
-  
+
   return state;
 }
