@@ -9,7 +9,7 @@ import {
   OptionRanking,
   ActionStep,
 } from './types';
-import { USE_MOCK_AI } from '../aiConfig';
+import { MODEL_ROUTES, USE_MOCK_AI } from '../aiConfig';
 
 /**
  * AI Agent 6: 决策协调者与叙事者
@@ -29,11 +29,15 @@ export async function generateFinalReport(
   }
 
   try {
-    const { callOpenAI, parseJSONResponse } = await import('./apiClients');
+    const { callDeepSeek, parseJSONResponse } = await import('./apiClients');
     const prompt = buildCoordinatorPrompt(input, structure, probabilities, timeline, multiDimensional, risks);
     const systemPrompt = 'You are a master decision advisor. Synthesize all analyses and respond with valid JSON only.';
     
-    const response = await callOpenAI(prompt, systemPrompt);
+    const response = await callDeepSeek(prompt, systemPrompt, {
+      tier: MODEL_ROUTES.finalReport,
+      temperature: 0.5,
+      maxTokens: 3600,
+    });
     const parsed = parseJSONResponse(response);
     
     return {
@@ -46,7 +50,7 @@ export async function generateFinalReport(
       confidenceLevel: parsed.confidenceLevel || 0.7,
     };
   } catch (error) {
-    console.error('OpenAI API failed, falling back to mock:', error);
+    console.error('DeepSeek API failed, falling back to mock:', error);
     return mockGenerateFinalReport(input, structure, probabilities, timeline, multiDimensional, risks);
   }
 }
@@ -253,4 +257,3 @@ function calculateConfidence(probabilities: ProbabilityTree, risks: RiskAnalysis
   
   return Math.max(0.5, Math.min(0.95, (concentrationScore + riskScore) / 2));
 }
-

@@ -43,17 +43,17 @@
 }
 
 :root {
-  --primary: oklch(0.25 0.05 260); /* 更深邃的专业蓝 */
+  --primary: oklch(0.28 0.065 245);
   --primary-foreground: oklch(0.99 0 0);
   --sidebar-primary: var(--color-slate-900);
   --sidebar-primary-foreground: var(--color-slate-50);
-  --chart-1: oklch(0.6 0.15 250);
-  --chart-2: oklch(0.5 0.2 280);
-  --chart-3: oklch(0.7 0.1 200);
-  --chart-4: oklch(0.4 0.25 320);
-  --chart-5: oklch(0.8 0.12 150);
-  --radius: 0.5rem; /* 更硬朗的商业感 */
-  --background: oklch(0.98 0.005 260); /* 浅灰蓝背景 */
+  --chart-1: oklch(0.58 0.17 245);
+  --chart-2: oklch(0.66 0.14 168);
+  --chart-3: oklch(0.75 0.15 82);
+  --chart-4: oklch(0.61 0.18 20);
+  --chart-5: oklch(0.56 0.15 310);
+  --radius: 0.5rem;
+  --background: oklch(0.985 0.006 235);
   --foreground: oklch(0.15 0.02 260);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.15 0.02 260);
@@ -63,7 +63,7 @@
   --secondary-foreground: oklch(0.25 0.05 260);
   --muted: oklch(0.94 0.01 260);
   --muted-foreground: oklch(0.45 0.02 260);
-  --accent: oklch(0.35 0.12 260);
+  --accent: oklch(0.55 0.13 168);
   --accent-foreground: oklch(0.99 0 0);
   --destructive: oklch(0.5 0.2 25);
   --destructive-foreground: oklch(0.99 0 0);
@@ -118,7 +118,12 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(circle at 12% 0%, oklch(0.92 0.07 185 / 45%), transparent 28rem),
+      radial-gradient(circle at 88% 8%, oklch(0.94 0.08 82 / 36%), transparent 24rem),
+      linear-gradient(180deg, oklch(0.99 0.004 240), oklch(0.965 0.01 240));
+    background-attachment: fixed;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -168,5 +173,41 @@
       padding-right: 2rem;
       max-width: 1280px; /* Standard content width */
     }
+  }
+
+  .decision-workspace {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .decision-workspace::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, oklch(0.2 0.02 250 / 5%) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(0.2 0.02 250 / 5%) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: linear-gradient(to bottom, black, transparent 72%);
+  }
+
+  .decision-workspace > .container {
+    position: relative;
+    z-index: 1;
+  }
+
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: oklch(0.55 0.04 250) transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: oklch(0.55 0.04 250);
+    border-radius: 999px;
   }
 }

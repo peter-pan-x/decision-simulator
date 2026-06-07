@@ -1,5 +1,5 @@
 import { DecisionInput, DecisionStructure, Variable, CausalLink } from './types';
-import { USE_MOCK_AI } from '../aiConfig';
+import { MODEL_ROUTES, USE_MOCK_AI } from '../aiConfig';
 
 /**
  * AI Agent 1: 决策解构师
@@ -14,11 +14,14 @@ export async function analyzeDecisionStructure(
   }
 
   try {
-    const { callOpenAI, parseJSONResponse } = await import('./apiClients');
+    const { callDeepSeek, parseJSONResponse } = await import('./apiClients');
     const prompt = buildDeconstructorPrompt(input);
     const systemPrompt = 'You are an expert decision analyst. Always respond with valid JSON only, no additional text.';
     
-    const response = await callOpenAI(prompt, systemPrompt);
+    const response = await callDeepSeek(prompt, systemPrompt, {
+      tier: MODEL_ROUTES.deconstruction,
+      temperature: 0.3,
+    });
     const parsed = parseJSONResponse(response);
     
     return {
@@ -28,7 +31,7 @@ export async function analyzeDecisionStructure(
       constraints: parsed.constraints || [],
     };
   } catch (error) {
-    console.error('OpenAI API failed, falling back to mock:', error);
+    console.error('DeepSeek API failed, falling back to mock:', error);
     return mockAnalyzeDecisionStructure(input);
   }
 }
@@ -273,4 +276,3 @@ function mockGenericDecisionStructure(input: DecisionInput): DecisionStructure {
     ],
   };
 }
-

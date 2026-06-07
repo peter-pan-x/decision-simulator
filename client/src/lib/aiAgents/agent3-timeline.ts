@@ -8,7 +8,7 @@ import {
   Milestone,
   TurningPoint,
 } from './types';
-import { USE_MOCK_AI } from '../aiConfig';
+import { MODEL_ROUTES, USE_MOCK_AI } from '../aiConfig';
 
 /**
  * AI Agent 3: 时序演化模拟器
@@ -25,11 +25,14 @@ export async function simulateTimeline(
   }
 
   try {
-    const { callOpenAI, parseJSONResponse } = await import('./apiClients');
+    const { callDeepSeek, parseJSONResponse } = await import('./apiClients');
     const prompt = buildTimelinePrompt(input, structure, probabilities);
     const systemPrompt = 'You are a future scenario expert. Respond with valid JSON only.';
     
-    const response = await callOpenAI(prompt, systemPrompt);
+    const response = await callDeepSeek(prompt, systemPrompt, {
+      tier: MODEL_ROUTES.timeline,
+      temperature: 0.45,
+    });
     const parsed = parseJSONResponse(response);
     
     return {
@@ -38,7 +41,7 @@ export async function simulateTimeline(
       turningPoints: parsed.turningPoints || [],
     };
   } catch (error) {
-    console.error('OpenAI API failed, falling back to mock:', error);
+    console.error('DeepSeek API failed, falling back to mock:', error);
     return mockSimulateTimeline(input, structure, probabilities);
   }
 }
@@ -207,4 +210,3 @@ function generateVariableState(
   
   return state;
 }
-

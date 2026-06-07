@@ -1,94 +1,94 @@
-import OpenAI from 'openai';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { AI_CONFIG } from '../aiConfig';
+import { AI_CONFIG, DeepSeekModelTier } from '../aiConfig';
 
-// OpenAI客户端
-let openaiClient: OpenAI | null = null;
+type CallOptions = {
+  tier?: DeepSeekModelTier;
+  temperature?: number;
+  maxTokens?: number;
+};
 
-export function getOpenAIClient(): OpenAI {
-  if (!openaiClient) {
-    openaiClient = new OpenAI({
-      apiKey: AI_CONFIG.openai.apiKey,
-      baseURL: AI_CONFIG.openai.baseURL,
-      dangerouslyAllowBrowser: true, // 仅用于演示,生产环境应使用后端代理
-    });
+export async function callDeepSeek(
+  prompt: string,
+  systemPrompt?: string,
+  options: CallOptions = {}
+): Promise<string> {
+  const tier = options.tier || 'pro';
+
+  const response = await fetch(AI_CONFIG.deepseek.proxyPath, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      prompt,
+      systemPrompt,
+      tier,
+      temperature: options.temperature,
+      maxTokens: options.maxTokens,
+    }),
+  });
+
+  const payload = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(payload?.error || 'AI request failed.');
   }
-  return openaiClient;
-}
 
-// Gemini客户端
-let geminiClient: GoogleGenerativeAI | null = null;
-
-export function getGeminiClient(): GoogleGenerativeAI {
-  if (!geminiClient) {
-    geminiClient = new GoogleGenerativeAI(AI_CONFIG.gemini.apiKey);
-  }
-  return geminiClient;
+  return payload?.content || '';
 }
 
 /**
- * 调用OpenAI GPT-4
+ * Backward-compatible aliases for existing agents.
+ * callOpenAI now means "high-reasoning DeepSeek v4pro".
  */
 export async function callOpenAI(prompt: string, systemPrompt?: string): Promise<string> {
-  const client = getOpenAIClient();
-  
-  const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [];
-  
-  if (systemPrompt) {
-    messages.push({
-      role: 'system',
-      content: systemPrompt,
-    });
-  }
-  
-  messages.push({
-    role: 'user',
-    content: prompt,
-  });
-
-  const response = await client.chat.completions.create({
-    model: AI_CONFIG.openai.model,
-    messages,
-    temperature: 0.7,
-    max_tokens: 2000,
-  });
-
-  return response.choices[0]?.message?.content || '';
+  return callDeepSeek(prompt, systemPrompt, { tier: 'pro' });
 }
 
 /**
- * 调用Google Gemini
+ * Backward-compatible alias for existing agents.
+ * callGemini now means "lightweight DeepSeek v4flash".
  */
 export async function callGemini(prompt: string, systemPrompt?: string): Promise<string> {
-  const client = getGeminiClient();
-  const model = client.getGenerativeModel({ model: 'gemini-pro' });
-
-  const fullPrompt = systemPrompt 
-    ? `${systemPrompt}\n\n${prompt}`
-    : prompt;
-
-  const result = await model.generateContent(fullPrompt);
-  const response = await result.response;
-  return response.text();
+  return callDeepSeek(prompt, systemPrompt, { tier: 'flash' });
 }
 
 /**
- * 解析JSON响应,处理可能的markdown代码块
+ * 解析JSON响应,处理可能的markdown代码块和模型解释性前后缀。
  */
 export function parseJSONResponse(text: string): any {
-  // 移除可能的markdown代码块标记
   let cleaned = text.trim();
-  
-  // 移除 ```json 和 ```
+
   cleaned = cleaned.replace(/^```json\s*/i, '');
   cleaned = cleaned.replace(/^```\s*/, '');
   cleaned = cleaned.replace(/\s*```$/, '');
-  
+
   try {
     return JSON.parse(cleaned);
-  } catch (error) {
+  } catch {
+    const objectStart = cleaned.indexOf('{');
+    const objectEnd = cleaned.lastIndexOf('}');
+    const arrayStart = cleaned.indexOf('[');
+    const arrayEnd = cleaned.lastIndexOf(']');
+
+    const objectCandidate =
+      objectStart !== -1 && objectEnd > objectStart
+        ? cleaned.slice(objectStart, objectEnd + 1)
+        : null;
+    const arrayCandidate =
+      arrayStart !== -1 && arrayEnd > arrayStart
+        ? cleaned.slice(arrayStart, arrayEnd + 1)
+        : null;
+
+    for (const candidate of [objectCandidate, arrayCandidate]) {
+      if (!candidate) continue;
+      try {
+        return JSON.parse(candidate);
+      } catch {
+        // Try the next candidate.
+      }
+    }
+
     console.error('Failed to parse JSON:', cleaned);
     throw new Error('Invalid JSON response from AI');
   }
 }
-

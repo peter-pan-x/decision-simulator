@@ -27,7 +27,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden lg:flex items-center gap-6">
           {navItems.map((item) => (
             <Link 
               key={item.href} 
@@ -50,7 +50,7 @@ export default function Navbar() {
 
         {/* Mobile Menu Toggle */}
         <button 
-          className="md:hidden p-2 text-muted-foreground hover:text-primary transition-colors"
+          className="lg:hidden p-2 text-muted-foreground hover:text-primary transition-colors"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -59,7 +59,7 @@ export default function Navbar() {
 
       {/* Mobile Navigation */}
       {isMenuOpen && (
-        <div className="md:hidden border-t bg-background p-4 space-y-4 animate-in slide-in-from-top duration-200">
+        <div className="lg:hidden border-t bg-background p-4 space-y-4 animate-in slide-in-from-top duration-200">
           {navItems.map((item) => (
             <Link 
               key={item.href} 

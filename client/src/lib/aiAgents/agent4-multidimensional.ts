@@ -7,11 +7,11 @@ import {
   Tradeoff,
   Synergy,
 } from './types';
-import { USE_MOCK_AI } from '../aiConfig';
+import { MODEL_ROUTES, USE_MOCK_AI } from '../aiConfig';
 
 /**
  * AI Agent 4: 多维度评估专家
- * 使用 Gemini 进行深度的多维度分析
+ * 使用 DeepSeek v4flash 进行深度的多维度分析
  */
 
 export async function analyzeMultiDimensional(
@@ -24,11 +24,14 @@ export async function analyzeMultiDimensional(
   }
 
   try {
-    const { callGemini, parseJSONResponse } = await import('./apiClients');
+    const { callDeepSeek, parseJSONResponse } = await import('./apiClients');
     const prompt = buildMultiDimensionalPrompt(input, structure, timeline);
     const systemPrompt = 'You are a multi-dimensional decision analysis expert. Respond with valid JSON only.';
     
-    const response = await callGemini(prompt, systemPrompt);
+    const response = await callDeepSeek(prompt, systemPrompt, {
+      tier: MODEL_ROUTES.multidimensional,
+      temperature: 0.35,
+    });
     const parsed = parseJSONResponse(response);
     
     return {
@@ -37,7 +40,7 @@ export async function analyzeMultiDimensional(
       synergies: parsed.synergies || [],
     };
   } catch (error) {
-    console.error('Gemini API failed, falling back to mock:', error);
+    console.error('DeepSeek API failed, falling back to mock:', error);
     return mockAnalyzeMultiDimensional(input, structure, timeline);
   }
 }
@@ -219,4 +222,3 @@ function generateSynergies(dimensions: string[]): Synergy[] {
 
   return synergies;
 }
-

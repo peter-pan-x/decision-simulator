@@ -2,38 +2,22 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { History as HistoryIcon, Trash2, ChevronRight, Search, Calendar } from 'lucide-react';
+import { History as HistoryIcon, Trash2, ChevronRight, Search, Calendar, Sparkles, TrendingUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'wouter';
-
-interface HistoryItem {
-  id: string;
-  question: string;
-  timestamp: number;
-  recommendation: string;
-  confidence: number;
-}
+import { deleteAnalysis, listAnalyses, StoredAnalysis } from '@/lib/historyStore';
 
 export default function History() {
   const { t } = useTranslation();
-  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [history, setHistory] = useState<StoredAnalysis[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    const savedHistory = localStorage.getItem('decision_history');
-    if (savedHistory) {
-      try {
-        setHistory(JSON.parse(savedHistory));
-      } catch (e) {
-        console.error('Failed to parse history', e);
-      }
-    }
+    setHistory(listAnalyses());
   }, []);
 
   const deleteItem = (id: string) => {
-    const newHistory = history.filter(item => item.id !== id);
-    setHistory(newHistory);
-    localStorage.setItem('decision_history', JSON.stringify(newHistory));
+    setHistory(deleteAnalysis(id));
   };
 
   const filteredHistory = history.filter(item => 
@@ -41,8 +25,8 @@ export default function History() {
   ).sort((a, b) => b.timestamp - a.timestamp);
 
   return (
-    <div className="container py-8 max-w-4xl">
-      <div className="flex items-center justify-between mb-8">
+    <div className="container py-8 max-w-5xl">
+      <div className="mb-8 flex flex-col gap-4 rounded-lg border bg-card p-6 shadow-sm md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
             <HistoryIcon className="h-8 w-8 text-primary" />
@@ -53,8 +37,37 @@ export default function History() {
           </p>
         </div>
         <Link href="/">
-          <Button variant="outline">New Analysis</Button>
+          <Button className="gap-2">
+            <Sparkles className="h-4 w-4" />
+            New Analysis
+          </Button>
         </Link>
+      </div>
+
+      <div className="mb-6 grid gap-3 sm:grid-cols-3">
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-black">{history.length}</div>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">Saved analyses</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-black">
+              {history.length ? Math.round(history.reduce((sum, item) => sum + item.confidence, 0) / history.length) : 0}%
+            </div>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">Avg confidence</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-3 p-4">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            <div>
+              <div className="font-semibold">Decision memory</div>
+              <div className="text-xs text-muted-foreground">Stored locally on this browser</div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="relative mb-6">
@@ -114,7 +127,7 @@ export default function History() {
           ))}
         </div>
       ) : (
-        <Card className="border-dashed py-12">
+        <Card className="border-dashed py-16">
           <CardContent className="flex flex-col items-center justify-center text-center">
             <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
               <HistoryIcon className="h-6 w-6 text-muted-foreground" />

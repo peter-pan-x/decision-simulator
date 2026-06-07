@@ -10,6 +10,7 @@ import About from "./pages/About";
 import History from "./pages/History";
 import Pricing from "./pages/Pricing";
 import Navbar from "./components/Navbar";
+import AnalysisDetail from "./pages/AnalysisDetail";
 
 function Router() {
   return (
@@ -19,6 +20,7 @@ function Router() {
         <Switch>
           <Route path={"/"} component={Home} />
           <Route path={"/history"} component={History} />
+          <Route path={"/analysis/:id"} component={AnalysisDetail} />
           <Route path={"/pricing"} component={Pricing} />
           <Route path={"/about"} component={About} />
           <Route path={"/404"} component={NotFound} />

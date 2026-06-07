@@ -1,6 +1,5 @@
 import { DecisionInput, DecisionStructure, DebateLog } from './types';
-import { callOpenAI, parseJSONResponse } from './apiClients';
-import { USE_MOCK_AI } from '../aiConfig';
+import { MODEL_ROUTES, USE_MOCK_AI } from '../aiConfig';
 
 export interface GameTheoryAnalysis {
   payoffMatrix: Record<string, Record<string, number>>;
@@ -41,6 +40,8 @@ export async function analyzeGameTheory(
   }
 
   try {
+    const { callDeepSeek, parseJSONResponse } = await import('./apiClients');
+
     addLog({
       agent: 'Game-Theorist',
       role: 'synthesizer',
@@ -66,7 +67,10 @@ export async function analyzeGameTheory(
       "strategicInsights": ["..."]
     }`;
 
-    const response = await callOpenAI(prompt, "You are a game theory expert analyzing strategic decisions.");
+    const response = await callDeepSeek(prompt, "You are a game theory expert analyzing strategic decisions.", {
+      tier: MODEL_ROUTES.advancedReasoning,
+      temperature: 0.35,
+    });
     const parsed = parseJSONResponse(response);
 
     addLog({
@@ -108,6 +112,8 @@ export async function analyzeAdvancedScenarios(
   }
 
   try {
+    const { callDeepSeek, parseJSONResponse } = await import('./apiClients');
+
     addLog({
       agent: 'Futurist',
       role: 'futurist',
@@ -147,7 +153,10 @@ export async function analyzeAdvancedScenarios(
       ]
     }`;
 
-    const response = await callOpenAI(prompt, "You are a futurist and scenario planner.");
+    const response = await callDeepSeek(prompt, "You are a futurist and scenario planner.", {
+      tier: MODEL_ROUTES.advancedReasoning,
+      temperature: 0.65,
+    });
     const parsed = parseJSONResponse(response);
 
     addLog({
@@ -187,6 +196,8 @@ export async function analyzeCausalChains(
   }
 
   try {
+    const { callDeepSeek, parseJSONResponse } = await import('./apiClients');
+
     addLog({
       agent: 'Causal-Analyst',
       role: 'synthesizer',
@@ -216,7 +227,10 @@ export async function analyzeCausalChains(
       ]
     }`;
 
-    const response = await callOpenAI(prompt, "You are a systems analyst expert in causal reasoning.");
+    const response = await callDeepSeek(prompt, "You are a systems analyst expert in causal reasoning.", {
+      tier: MODEL_ROUTES.advancedReasoning,
+      temperature: 0.3,
+    });
     const parsed = parseJSONResponse(response);
 
     addLog({

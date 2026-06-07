@@ -1,4 +1,4 @@
-import { Check, Zap } from 'lucide-react';
+import { Check, ShieldCheck, Sparkles, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -51,20 +51,24 @@ export default function Pricing() {
   ];
 
   return (
-    <div className="container py-24 space-y-12">
+    <div className="container py-16 space-y-12">
       <div className="text-center space-y-4 max-w-3xl mx-auto">
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Simple, Transparent Pricing</h1>
+        <div className="mx-auto inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+          Built for serious decisions
+        </div>
+        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Pricing for decision velocity</h1>
         <p className="text-xl text-muted-foreground">
-          Choose the plan that fits your strategic needs. All plans include our core neural engine.
+          Start with quick personal analysis, then scale into report-grade strategy workflows.
         </p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {plans.map((plan) => (
-          <Card key={plan.name} className={`relative flex flex-col ${plan.popular ? 'border-primary shadow-lg ring-1 ring-primary/20 scale-105 z-10' : ''}`}>
+          <Card key={plan.name} className={`relative flex flex-col overflow-hidden ${plan.popular ? 'border-primary shadow-lg ring-1 ring-primary/20 scale-105 z-10' : ''}`}>
             {plan.popular && (
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
-                Most Popular
+              <div className="bg-primary px-4 py-2 text-center text-[10px] font-bold uppercase tracking-widest text-primary-foreground">
+                Most Popular for Operators
               </div>
             )}
             <CardHeader>
@@ -88,6 +92,7 @@ export default function Pricing() {
             <CardFooter>
               <Button className="w-full font-bold" variant={plan.variant}>
                 {plan.name === 'Pro' && <Zap className="h-4 w-4 mr-2 fill-current" />}
+                {plan.name === 'Free' && <Sparkles className="h-4 w-4 mr-2" />}
                 {plan.cta}
               </Button>
             </CardFooter>
@@ -96,9 +101,12 @@ export default function Pricing() {
       </div>
 
       <div className="text-center pt-12">
-        <p className="text-sm text-muted-foreground">
-          Questions? <a href="/about" className="text-primary font-medium hover:underline">Check our FAQ</a> or <a href="/about" className="text-primary font-medium hover:underline">contact support</a>.
-        </p>
+        <div className="mx-auto max-w-3xl rounded-lg border bg-muted/30 p-6 text-left">
+          <h2 className="font-semibold">What changes when you upgrade?</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Pro is designed around repeated strategic decisions: persistent history, deeper agent passes, exportable reports, and faster iteration on alternatives.
+          </p>
+        </div>
       </div>
     </div>
   );

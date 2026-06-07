@@ -1,9 +1,9 @@
 import { DecisionInput, DecisionStructure, ProbabilityTree, DecisionPath } from './types';
-import { USE_MOCK_AI } from '../aiConfig';
+import { MODEL_ROUTES, USE_MOCK_AI } from '../aiConfig';
 
 /**
  * AI Agent 2: 概率计算器
- * 使用 Gemini 进行贝叶斯推理和概率计算
+ * 使用 DeepSeek v4flash 进行贝叶斯推理和概率计算
  */
 
 export async function calculateProbabilities(
@@ -15,11 +15,14 @@ export async function calculateProbabilities(
   }
 
   try {
-    const { callGemini, parseJSONResponse } = await import('./apiClients');
+    const { callDeepSeek, parseJSONResponse } = await import('./apiClients');
     const prompt = buildProbabilityPrompt(input, structure);
     const systemPrompt = 'You are a probability and Bayesian reasoning expert. Respond with valid JSON only.';
     
-    const response = await callGemini(prompt, systemPrompt);
+    const response = await callDeepSeek(prompt, systemPrompt, {
+      tier: MODEL_ROUTES.probability,
+      temperature: 0.25,
+    });
     const parsed = parseJSONResponse(response);
     
     return {
@@ -27,7 +30,7 @@ export async function calculateProbabilities(
       distributions: parsed.distributions || [],
     };
   } catch (error) {
-    console.error('Gemini API failed, falling back to mock:', error);
+    console.error('DeepSeek API failed, falling back to mock:', error);
     return mockCalculateProbabilities(input, structure);
   }
 }
@@ -157,4 +160,3 @@ function normalPDF(x: number, mean: number, stdDev: number): number {
   const exponent = -Math.pow(x - mean, 2) / (2 * Math.pow(stdDev, 2));
   return Math.exp(exponent) / (stdDev * Math.sqrt(2 * Math.PI));
 }
-

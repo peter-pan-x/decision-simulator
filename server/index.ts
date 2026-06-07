@@ -2,6 +2,7 @@ import express from "express";
 import { createServer } from "http";
 import path from "path";
 import { fileURLToPath } from "url";
+import { createDeepSeekChatCompletion, getDeepSeekRuntimeStatus } from "./ai";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -9,6 +10,22 @@ const __dirname = path.dirname(__filename);
 async function startServer() {
   const app = express();
   const server = createServer(app);
+
+  app.use(express.json({ limit: "1mb" }));
+
+  app.post("/api/ai/chat", async (req, res) => {
+    try {
+      const result = await createDeepSeekChatCompletion(req.body);
+      res.status(result.status).json(result.payload);
+    } catch (error) {
+      console.error("AI proxy failed:", error);
+      res.status(500).json({ error: "AI proxy failed." });
+    }
+  });
+
+  app.get("/api/ai/status", (_req, res) => {
+    res.json(getDeepSeekRuntimeStatus());
+  });
 
   // Serve static files from dist/public in production
   const staticPath =

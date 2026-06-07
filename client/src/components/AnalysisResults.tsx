@@ -1,17 +1,40 @@
 import { useTranslation } from 'react-i18next';
+import { lazy, Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileDown, RotateCcw, TrendingUp, AlertTriangle, Brain, MessageSquare, Share2, Download } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowUpRight,
+  Brain,
+  CheckCircle2,
+  CircleDot,
+  Download,
+  MessageSquare,
+  RotateCcw,
+  Share2,
+  ShieldAlert,
+  TrendingUp,
+  XCircle,
+} from 'lucide-react';
 import { exportToPDF, shareReport } from '@/lib/exportUtils';
-import DecisionFlowChart from './DecisionFlowChart';
-import RadarChart from './RadarChart';
-import ReasoningVisualization from './ReasoningVisualization';
-import CausalChainVisualization from './CausalChainVisualization';
-import ScenarioAnalysisVisualization from './ScenarioAnalysisVisualization';
-import GameTheoryVisualization from './GameTheoryVisualization';
 import { DebateLog, CompleteAnalysis } from '@/lib/aiAgents/types';
+
+const DecisionFlowChart = lazy(() => import('./DecisionFlowChart'));
+const RadarChart = lazy(() => import('./RadarChart'));
+const ReasoningVisualization = lazy(() => import('./ReasoningVisualization'));
+const CausalChainVisualization = lazy(() => import('./CausalChainVisualization'));
+const ScenarioAnalysisVisualization = lazy(() => import('./ScenarioAnalysisVisualization'));
+const GameTheoryVisualization = lazy(() => import('./GameTheoryVisualization'));
+
+function ReportSectionFallback({ label }: { label: string }) {
+  return (
+    <div className="rounded-lg border bg-muted/30 p-6 text-center text-sm text-muted-foreground">
+      Loading {label}...
+    </div>
+  );
+}
 
 export interface CascadeEffect {
   first_order: string[];
@@ -45,6 +68,9 @@ interface AnalysisResultsProps {
 
 export default function AnalysisResults({ results, onStartNew, debateLogs, advancedAnalysis }: AnalysisResultsProps) {
   const { t } = useTranslation();
+  const rankedResults = [...results].sort((a, b) => b.overallScore - a.overallScore);
+  const topResult = rankedResults[0];
+  const finalReport = advancedAnalysis?.finalReport;
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600';
@@ -66,8 +92,12 @@ export default function AnalysisResults({ results, onStartNew, debateLogs, advan
   return (
     <div className="space-y-8 animate-in fade-in duration-700" id="analysis-report">
       {/* Header Actions */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-card p-6 rounded-xl border shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-lg border bg-card p-6 shadow-sm">
         <div>
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <Badge variant="secondary">Executive brief</Badge>
+            <Badge variant="outline">Confidence {Math.round((finalReport?.confidenceLevel || 0.72) * 100)}%</Badge>
+          </div>
           <h2 className="text-3xl font-bold">{t('results.title')}</h2>
           <p className="text-muted-foreground mt-1">
             Comprehensive multi-dimensional analysis of your decision options
@@ -78,10 +108,10 @@ export default function AnalysisResults({ results, onStartNew, debateLogs, advan
             variant="outline" 
             size="sm" 
             className="gap-2"
-            onClick={() => exportToPDF('analysis-report', `Decision_Analysis_${new Date().getTime()}.pdf`)}
+            onClick={() => exportToPDF('analysis-report', `Decision_Report_${new Date().getTime()}.html`)}
           >
             <Download className="h-4 w-4" />
-            Export PDF
+            Export Report
           </Button>
           <Button 
             variant="outline" 
@@ -99,32 +129,102 @@ export default function AnalysisResults({ results, onStartNew, debateLogs, advan
         </div>
       </div>
 
+      {topResult && (
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <Card className="overflow-hidden border-primary/20">
+            <CardHeader className="border-b bg-primary text-primary-foreground">
+              <CardTitle className="flex items-center gap-2">
+                <ArrowUpRight className="h-5 w-5" />
+                Recommended Path
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-5 p-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <h3 className="text-2xl font-black tracking-tight">{finalReport?.recommendation || topResult.optionName}</h3>
+                  <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                    {finalReport?.summary || `This option currently leads the analysis with a ${topResult.overallScore}/100 score and the strongest risk-adjusted profile.`}
+                  </p>
+                </div>
+                <div className="rounded-lg border bg-background p-4 text-center">
+                  <div className={`text-4xl font-black ${getScoreColor(topResult.overallScore)}`}>{topResult.overallScore}</div>
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Decision score</div>
+                </div>
+              </div>
+
+              {finalReport?.keyInsights?.length ? (
+                <div className="grid gap-3 md:grid-cols-2">
+                  {finalReport.keyInsights.slice(0, 4).map((insight, index) => (
+                    <div key={index} className="flex gap-3 rounded-lg border bg-muted/30 p-3 text-sm">
+                      <CircleDot className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <span>{insight}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <ShieldAlert className="h-5 w-5 text-primary" />
+                Next Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {(finalReport?.actionPlan || []).slice(0, 4).map((step) => (
+                <div key={step.step} className="rounded-lg border bg-muted/20 p-3">
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <span className="text-xs font-bold uppercase text-primary">Step {step.step}</span>
+                    <Badge variant="outline" className="text-[10px]">{step.importance}</Badge>
+                  </div>
+                  <p className="text-sm font-medium">{step.action}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{step.timeframe}</p>
+                </div>
+              ))}
+              {!finalReport?.actionPlan?.length && (
+                <p className="text-sm text-muted-foreground">Run the analysis with live AI to generate a tailored action plan.</p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Reasoning Visualization */}
       {debateLogs && debateLogs.length > 0 && (
         <div className="mb-8">
-          <ReasoningVisualization logs={debateLogs} />
+          <Suspense fallback={<ReportSectionFallback label="reasoning trace" />}>
+            <ReasoningVisualization logs={debateLogs} />
+          </Suspense>
         </div>
       )}
 
       {advancedAnalysis && advancedAnalysis.gameTheory && (
         <div className="mb-8">
-          <GameTheoryVisualization
-            payoffMatrix={advancedAnalysis.gameTheory.payoffMatrix}
-            nashEquilibrium={advancedAnalysis.gameTheory.nashEquilibrium}
-            strategicInsights={advancedAnalysis.gameTheory.strategicInsights}
-          />
+          <Suspense fallback={<ReportSectionFallback label="game theory view" />}>
+            <GameTheoryVisualization
+              payoffMatrix={advancedAnalysis.gameTheory.payoffMatrix}
+              nashEquilibrium={advancedAnalysis.gameTheory.nashEquilibrium}
+              strategicInsights={advancedAnalysis.gameTheory.strategicInsights}
+            />
+          </Suspense>
         </div>
       )}
 
       {advancedAnalysis && advancedAnalysis.scenarios && advancedAnalysis.scenarios.length > 0 && (
         <div className="mb-8">
-          <ScenarioAnalysisVisualization scenarios={advancedAnalysis.scenarios} />
+          <Suspense fallback={<ReportSectionFallback label="scenario map" />}>
+            <ScenarioAnalysisVisualization scenarios={advancedAnalysis.scenarios} />
+          </Suspense>
         </div>
       )}
 
       {advancedAnalysis && advancedAnalysis.causalChains && advancedAnalysis.causalChains.chains.length > 0 && (
         <div className="mb-8">
-          <CausalChainVisualization chains={advancedAnalysis.causalChains.chains} />
+          <Suspense fallback={<ReportSectionFallback label="causal chains" />}>
+            <CausalChainVisualization chains={advancedAnalysis.causalChains.chains} />
+          </Suspense>
         </div>
       )}
 
@@ -139,20 +239,22 @@ export default function AnalysisResults({ results, onStartNew, debateLogs, advan
           </CardHeader>
           <CardContent>
             <div className="h-[350px] w-full">
-              <RadarChart 
-                data={
-                  results[0]?.dimensionScores.map(dim => {
-                    const entry: any = { dimension: dim.dimension };
-                    results.forEach(opt => {
-                      const optDim = opt.dimensionScores.find(d => d.dimension === dim.dimension);
-                      entry[opt.optionName] = optDim ? optDim.score : 0;
-                    });
-                    return entry;
-                  }) || []
-                }
-                dataKeys={results.map(opt => opt.optionName)}
-                colors={['#2563eb', '#db2777', '#059669', '#d97706', '#7c3aed']}
-              />
+              <Suspense fallback={<ReportSectionFallback label="radar comparison" />}>
+                <RadarChart
+                  data={
+                    results[0]?.dimensionScores.map(dim => {
+                      const entry: any = { dimension: dim.dimension };
+                      results.forEach(opt => {
+                        const optDim = opt.dimensionScores.find(d => d.dimension === dim.dimension);
+                        entry[opt.optionName] = optDim ? optDim.score : 0;
+                      });
+                      return entry;
+                    }) || []
+                  }
+                  dataKeys={results.map(opt => opt.optionName)}
+                  colors={['#2563eb', '#0891b2', '#059669', '#d97706', '#be123c']}
+                />
+              </Suspense>
             </div>
           </CardContent>
         </Card>
@@ -165,7 +267,7 @@ export default function AnalysisResults({ results, onStartNew, debateLogs, advan
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {results.sort((a, b) => b.overallScore - a.overallScore).map((option, index) => (
+            {rankedResults.map((option, index) => (
               <div key={option.optionId} className={`p-4 rounded-lg border ${index === 0 ? 'bg-primary/5 border-primary/20 ring-1 ring-primary/20' : 'bg-muted/30'}`}>
                 <div className="flex justify-between items-start mb-2">
                   <h4 className="font-bold text-lg">{option.optionName}</h4>
@@ -213,7 +315,7 @@ export default function AnalysisResults({ results, onStartNew, debateLogs, advan
                     <ul className="space-y-2">
                       {option.pros.map((pro, i) => (
                         <li key={i} className="text-sm flex gap-2">
-                          <span className="text-green-500">✓</span>
+                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
                           {pro}
                         </li>
                       ))}
@@ -224,7 +326,7 @@ export default function AnalysisResults({ results, onStartNew, debateLogs, advan
                     <ul className="space-y-2">
                       {option.cons.map((con, i) => (
                         <li key={i} className="text-sm flex gap-2">
-                          <span className="text-red-500">✗</span>
+                          <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
                           {con}
                         </li>
                       ))}
@@ -274,11 +376,13 @@ export default function AnalysisResults({ results, onStartNew, debateLogs, advan
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <DecisionFlowChart 
-                  optionName={option.optionName}
-                  cascadeEffects={option.cascadeEffects}
-                  overallScore={option.overallScore}
-                />
+                <Suspense fallback={<ReportSectionFallback label="cascade analysis" />}>
+                  <DecisionFlowChart
+                    optionName={option.optionName}
+                    cascadeEffects={option.cascadeEffects}
+                    overallScore={option.overallScore}
+                  />
+                </Suspense>
               </CardContent>
             </Card>
           </TabsContent>

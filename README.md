@@ -2,9 +2,9 @@
 
 > **See Your Future, Choose Wisely** | **预见未来,智慧抉择**
 
-An AI-powered decision analysis platform that helps you predict complex decision outcomes through multi-dimensional analysis and visualization.
+An AI-powered decision analysis platform that turns complex choices into ranked options, risk controls, timelines, and report-ready recommendations.
 
-一个由AI驱动的决策分析平台,通过多维度分析和可视化帮助您预测复杂决策的结果。
+一个由AI驱动的决策分析平台,将复杂选择转化为选项排名、风险控制、时间线和可交付的决策建议。
 
 ![Decision Simulator](https://img.shields.io/badge/AI-Powered-blue) ![React](https://img.shields.io/badge/React-19-61DAFB) ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6)
 
@@ -12,18 +12,18 @@ An AI-powered decision analysis platform that helps you predict complex decision
 
 ## ✨ Features / 功能特性
 
-### 🧠 Multi-AI Collaboration Engine / 多AI协作引擎
+### 🧠 DeepSeek Multi-Agent Engine / DeepSeek 多代理引擎
 
-Six specialized AI agents working together to analyze your decisions:
+Specialized AI agents work together with DeepSeek v4 model routing:
 
-六个专业AI代理协同工作分析您的决策:
+多个专业AI代理通过 DeepSeek v4 模型路由协同分析您的决策:
 
-1. **Decision Deconstructor** - Builds causal relationship networks / 构建因果关系网络
-2. **Probability Calculator** - Bayesian inference and probability distribution / 贝叶斯推理和概率分布
-3. **Timeline Simulator** - Simulates decision evolution over time / 模拟决策随时间演化
-4. **Multi-dimensional Evaluator** - Deep analysis across 6 dimensions / 6个维度的深度分析
-5. **Risk Analyst** - Identifies risks and uncertainties / 识别风险和不确定性
-6. **Decision Coordinator** - Synthesizes all analyses into final report / 综合所有分析生成最终报告
+1. **Decision Deconstructor** - Builds causal relationship networks with `deepseek-v4pro` / 使用 `deepseek-v4pro` 构建因果关系网络
+2. **Probability Calculator** - Bayesian inference with `deepseek-v4flash` / 使用 `deepseek-v4flash` 进行贝叶斯推理
+3. **Timeline Simulator** - Simulates decision evolution with `deepseek-v4flash` / 使用 `deepseek-v4flash` 模拟时间演化
+4. **Dialectical Strategist** - Stress-tests optimism, downside risk, and synthesis with `deepseek-v4pro` / 使用 `deepseek-v4pro` 进行辩证推演
+5. **Risk Analyst** - Identifies risks and mitigation plans with `deepseek-v4flash` / 使用 `deepseek-v4flash` 识别风险和缓释策略
+6. **Decision Coordinator** - Synthesizes all analyses into a final report with `deepseek-v4pro` / 使用 `deepseek-v4pro` 综合生成最终报告
 
 ### 📊 Advanced Visualization / 高级可视化
 
@@ -59,8 +59,7 @@ Evaluate decisions across 6 key dimensions:
 
 - Node.js 18+ 
 - pnpm 8+
-- OpenAI API Key
-- Google Gemini API Key
+- DeepSeek API Key
 
 ### Installation / 安装
 
@@ -87,8 +86,12 @@ Create a `.env` file in the root directory:
 在根目录创建`.env`文件:
 
 ```bash
-VITE_OPENAI_API_KEY=your_openai_api_key_here
-VITE_GEMINI_API_KEY=your_gemini_api_key_here
+DEEPSEEK_API_KEY=your_deepseek_api_key_here
+DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
+DEEPSEEK_PRO_MODEL=deepseek-v4pro
+DEEPSEEK_FLASH_MODEL=deepseek-v4flash
+VITE_AI_PROXY_PATH=/api/ai/chat
+VITE_USE_MOCK_AI=false
 ```
 
 ---
@@ -113,7 +116,7 @@ VITE_GEMINI_API_KEY=your_gemini_api_key_here
 
 6. **Review Results** / 查看结果
    - Explore flow charts, radar charts, and detailed reports / 浏览流程图、雷达图和详细报告
-   - Export PDF report (coming soon) / 导出PDF报告(即将推出)
+   - Export a standalone HTML report / 导出独立 HTML 报告
 
 ---
 
@@ -129,8 +132,8 @@ VITE_GEMINI_API_KEY=your_gemini_api_key_here
 - **i18next** - Internationalization / 国际化
 
 ### AI Integration / AI集成
-- **OpenAI GPT-4** - Main reasoning engine / 主推理引擎
-- **Google Gemini** - Multi-dimensional analysis / 多维度分析
+- **DeepSeek v4pro** - Primary reasoning, debate, advanced analysis, and final reports / 主推理、辩证推演、高级分析和最终报告
+- **DeepSeek v4flash** - Lightweight structured extraction, probability, timeline, dimension, and risk passes / 轻量结构化抽取、概率、时间线、维度和风险分析
 
 ### Build Tools / 构建工具
 - **Vite** - Build tool / 构建工具
@@ -163,17 +166,17 @@ decision-simulator/
 
 ### Current Features / 当前功能
 - ✅ Multi-AI collaboration engine / 多AI协作引擎
+- ✅ DeepSeek v4pro/v4flash routing / DeepSeek v4pro/v4flash 模型路由
 - ✅ Interactive flow charts / 交互式流程图
 - ✅ Multi-dimensional analysis / 多维度分析
 - ✅ Bilingual support / 双语支持
 - ✅ Risk assessment / 风险评估
+- ✅ Decision history / 决策历史
 
 ### Upcoming Features / 即将推出
 - 🔄 User authentication / 用户认证
-- 🔄 Decision history / 决策历史
-- 🔄 PDF export / PDF导出
+- ✅ Standalone report export / 独立报告导出
 - 🔄 Email notifications / 邮件通知
-- 🔄 AI image generation (optional) / AI图像生成(可选)
 - 🔄 Collaborative decision making / 协作决策
 
 ---
@@ -196,8 +199,7 @@ MIT许可证 - 详见LICENSE文件
 
 ## 🙏 Acknowledgments / 致谢
 
-- OpenAI for GPT-4 API / OpenAI提供的GPT-4 API
-- Google for Gemini API / Google提供的Gemini API
+- DeepSeek for v4 model APIs / DeepSeek 提供的 v4 模型 API
 - React Flow for flow chart visualization / React Flow提供的流程图可视化
 - shadcn/ui for beautiful components / shadcn/ui提供的精美组件
 
@@ -214,4 +216,3 @@ For questions or feedback, please open an issue on GitHub.
 **Built with ❤️ by the Decision Simulator team**
 
 **由Decision Simulator团队用❤️构建**
-

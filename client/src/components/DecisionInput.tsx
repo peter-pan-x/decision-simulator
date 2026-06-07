@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, X, Sparkles, Info, Target, Shield, Clock, Layers } from 'lucide-react';
+import { Plus, X, Sparkles, Info, Target, Shield, Clock, Layers, Wand2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export interface DecisionOption {
@@ -43,6 +43,36 @@ const AVAILABLE_DIMENSIONS = [
   'relationships',
   'health',
   'time',
+];
+
+const DECISION_TEMPLATES = [
+  {
+    label: 'Career move',
+    decision: 'Should I leave my current job for a higher-growth opportunity with more uncertainty?',
+    options: ['Stay in my current role', 'Accept the new opportunity', 'Negotiate a hybrid path'],
+    dimensions: ['financial', 'career', 'lifestyle', 'health'],
+    timeframe: 'medium',
+    riskProfile: 'balanced',
+    factors: ['Protect downside income risk', 'Preserve learning velocity'],
+  },
+  {
+    label: 'Startup idea',
+    decision: 'Should I turn this product idea into a full-time startup?',
+    options: ['Keep it as a side project', 'Go full-time now', 'Validate with a paid pilot first'],
+    dimensions: ['financial', 'career', 'time', 'relationships'],
+    timeframe: 'long',
+    riskProfile: 'aggressive',
+    factors: ['Reach paying customers before overbuilding', 'Keep personal runway above 12 months'],
+  },
+  {
+    label: 'Relocation',
+    decision: 'Should I relocate to a new city for better long-term opportunities?',
+    options: ['Stay where I am', 'Move immediately', 'Try a 3-month test relocation'],
+    dimensions: ['financial', 'career', 'lifestyle', 'relationships', 'health'],
+    timeframe: 'long',
+    riskProfile: 'conservative',
+    factors: ['Avoid social isolation', 'Keep housing costs predictable'],
+  },
 ];
 
 export default function DecisionInputForm({ onAnalyze, isAnalyzing = false }: DecisionInputProps) {
@@ -101,6 +131,18 @@ export default function DecisionInputForm({ onAnalyze, isAnalyzing = false }: De
     setCustomFactors(customFactors.map((f, i) => (i === index ? value : f)));
   };
 
+  const applyTemplate = (template: (typeof DECISION_TEMPLATES)[number]) => {
+    setDecision(template.decision);
+    setOptions(template.options.map((description, index) => ({
+      id: `${template.label}-${index}`,
+      description,
+    })));
+    setSelectedDimensions(template.dimensions);
+    setTimeframe(template.timeframe);
+    setRiskProfile(template.riskProfile);
+    setCustomFactors(template.factors);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!decision.trim() || options.some((opt) => !opt.description.trim())) {
@@ -125,6 +167,28 @@ export default function DecisionInputForm({ onAnalyze, isAnalyzing = false }: De
       <div className="space-y-2 text-center mb-8">
         <h2 className="text-3xl font-bold tracking-tight">Strategic Input</h2>
         <p className="text-muted-foreground">Define your decision parameters for deep AI simulation</p>
+      </div>
+
+      <div className="rounded-lg border bg-muted/30 p-4">
+        <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
+          <Wand2 className="h-4 w-4 text-primary" />
+          Quick starts
+        </div>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {DECISION_TEMPLATES.map((template) => (
+            <Button
+              key={template.label}
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => applyTemplate(template)}
+              disabled={isAnalyzing}
+              className="justify-start"
+            >
+              {template.label}
+            </Button>
+          ))}
+        </div>
       </div>
 
       <div className="grid gap-8">
@@ -226,6 +290,7 @@ export default function DecisionInputForm({ onAnalyze, isAnalyzing = false }: De
                   <Checkbox
                     id={dimension}
                     checked={selectedDimensions.includes(dimension)}
+                    onClick={(event) => event.stopPropagation()}
                     onCheckedChange={() => toggleDimension(dimension)}
                     disabled={isAnalyzing}
                     className="data-[state=checked]:bg-primary"

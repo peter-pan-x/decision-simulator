@@ -8,11 +8,11 @@ import {
   MitigationStrategy,
   Scenario,
 } from './types';
-import { USE_MOCK_AI } from '../aiConfig';
+import { MODEL_ROUTES, USE_MOCK_AI } from '../aiConfig';
 
 /**
  * AI Agent 5: 风险与不确定性分析师
- * 使用 Gemini 进行深度风险评估
+ * 使用 DeepSeek v4flash 进行深度风险评估
  */
 
 export async function analyzeRisks(
@@ -25,11 +25,14 @@ export async function analyzeRisks(
   }
 
   try {
-    const { callGemini, parseJSONResponse } = await import('./apiClients');
+    const { callDeepSeek, parseJSONResponse } = await import('./apiClients');
     const prompt = buildRiskPrompt(input, structure, timeline);
     const systemPrompt = 'You are a risk analysis expert. Respond with valid JSON only.';
     
-    const response = await callGemini(prompt, systemPrompt);
+    const response = await callDeepSeek(prompt, systemPrompt, {
+      tier: MODEL_ROUTES.risk,
+      temperature: 0.3,
+    });
     const parsed = parseJSONResponse(response);
     
     return {
@@ -39,7 +42,7 @@ export async function analyzeRisks(
       worstCaseScenario: parsed.worstCaseScenario || { description: '', probability: 0, triggers: [], consequences: [] },
     };
   } catch (error) {
-    console.error('Gemini API failed, falling back to mock:', error);
+    console.error('DeepSeek API failed, falling back to mock:', error);
     return mockAnalyzeRisks(input, structure, timeline);
   }
 }
@@ -266,4 +269,3 @@ function generateWorstCase(input: DecisionInput, risks: Risk[]): Scenario {
     ],
   };
 }
-

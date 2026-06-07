@@ -86,7 +86,7 @@ const resources = {
         probability: 'Probability',
         keyUncertainties: 'Key Uncertainties',
         dimensionScores: 'Dimension Breakdown',
-        export: 'Export PDF',
+        export: 'Export Report',
         startNew: 'New Analysis',
       },
       
@@ -199,7 +199,7 @@ const resources = {
         probability: '概率',
         keyUncertainties: '关键不确定性',
         dimensionScores: '维度分解',
-        export: '导出 PDF',
+        export: '导出报告',
         startNew: '新建分析',
       },
       
