@@ -63,6 +63,10 @@ export default function Navbar() {
         <button
           className="lg:hidden p-2 text-muted-foreground hover:text-primary transition-colors"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label={
+            isMenuOpen ? "Close navigation menu" : "Open navigation menu"
+          }
+          aria-expanded={isMenuOpen}
         >
           {isMenuOpen ? (
             <X className="h-6 w-6" />
