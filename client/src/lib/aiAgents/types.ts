@@ -20,7 +20,14 @@ export interface DecisionStructure {
 export interface Variable {
   id: string;
   name: string;
-  type: 'financial' | 'career' | 'lifestyle' | 'relationships' | 'health' | 'time' | 'other';
+  type:
+    | "financial"
+    | "career"
+    | "lifestyle"
+    | "relationships"
+    | "health"
+    | "time"
+    | "other";
   description: string;
   initialValue?: number;
 }
@@ -94,7 +101,7 @@ export interface MultiDimensionalAnalysis {
 export interface DimensionScore {
   dimension: string;
   score: number; // 0-100
-  trend: 'improving' | 'stable' | 'declining';
+  trend: "improving" | "stable" | "declining";
   details: string;
   subScores: Record<string, number>;
 }
@@ -122,11 +129,11 @@ export interface RiskAnalysis {
 
 export interface Risk {
   id: string;
-  type: 'financial' | 'career' | 'health' | 'relationship' | 'other';
+  type: "financial" | "career" | "health" | "relationship" | "other";
   description: string;
   probability: number;
   impact: number; // 1-10
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: "low" | "medium" | "high" | "critical";
   timeframe: string;
 }
 
@@ -169,19 +176,21 @@ export interface OptionRanking {
   pros: string[];
   cons: string[];
   bestFor: string;
+  winningReasons?: string[];
+  losingReasons?: string[];
 }
 
 export interface ActionStep {
   step: number;
   action: string;
   timeframe: string;
-  importance: 'critical' | 'high' | 'medium' | 'low';
+  importance: "critical" | "high" | "medium" | "low";
 }
 
 // 辩证式推演
 export interface DebateLog {
   agent: string;
-  role: 'optimist' | 'cynic' | 'synthesizer' | 'futurist' | 'coordinator';
+  role: "optimist" | "cynic" | "synthesizer" | "futurist" | "coordinator";
   message: string;
   timestamp: number;
   thoughtProcess?: string;

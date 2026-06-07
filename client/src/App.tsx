@@ -3,6 +3,7 @@ import "@/i18n/config";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch, Link } from "wouter";
+import { useTranslation } from "react-i18next";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
@@ -13,6 +14,8 @@ import Navbar from "./components/Navbar";
 import AnalysisDetail from "./pages/AnalysisDetail";
 
 function Router() {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -30,11 +33,26 @@ function Router() {
       </main>
       <footer className="border-t py-8 bg-muted/30">
         <div className="container text-center text-sm text-muted-foreground">
-          <p>© 2026 DecisionSimulator AI. All rights reserved.</p>
+          <p>{t("footer.copyright")}</p>
           <div className="flex justify-center gap-4 mt-2">
-            <Link href="/about" className="hover:text-primary transition-colors">Privacy Policy</Link>
-            <Link href="/about" className="hover:text-primary transition-colors">Terms of Service</Link>
-            <Link href="/about" className="hover:text-primary transition-colors">Contact Support</Link>
+            <Link
+              href="/about"
+              className="hover:text-primary transition-colors"
+            >
+              {t("footer.privacy")}
+            </Link>
+            <Link
+              href="/about"
+              className="hover:text-primary transition-colors"
+            >
+              {t("footer.terms")}
+            </Link>
+            <Link
+              href="/about"
+              className="hover:text-primary transition-colors"
+            >
+              {t("footer.support")}
+            </Link>
           </div>
         </div>
       </footer>
@@ -45,9 +63,7 @@ function Router() {
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-      >
+      <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
           <Router />

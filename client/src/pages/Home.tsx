@@ -27,7 +27,7 @@ import ModelStatus from "@/components/ModelStatus";
 const AnalysisResults = lazy(() => import("@/components/AnalysisResults"));
 
 export default function Home() {
-  const { i18n } = useTranslation();
+  const { t } = useTranslation();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [results, setResults] = useState<OptionAnalysis[] | null>(null);
   const [analysisSteps, setAnalysisSteps] = useState<AnalysisStep[]>([]);
@@ -42,35 +42,44 @@ export default function Home() {
     setCompleteAnalysis(null);
     let latestDebateLogs: DebateLog[] = [];
 
-    // 初始化分析步骤
     const steps: AnalysisStep[] = [
       {
         id: "1",
-        name: "Decision Deconstructor",
+        name: "Clarify the real choice",
         status: "pending",
         progress: 0,
       },
       {
         id: "2",
-        name: "Dialectical Reasoning",
+        name: "Optimist argues upside",
         status: "pending",
         progress: 0,
       },
       {
         id: "3",
-        name: "Probability Calculator",
+        name: "Skeptic attacks downside",
         status: "pending",
         progress: 0,
       },
-      { id: "4", name: "Timeline Simulator", status: "pending", progress: 0 },
+      {
+        id: "4",
+        name: "Pragmatist checks feasibility",
+        status: "pending",
+        progress: 0,
+      },
       {
         id: "5",
-        name: "Multi-dimensional Evaluator",
+        name: "Future Self checks regret",
         status: "pending",
         progress: 0,
       },
-      { id: "6", name: "Risk Analyst", status: "pending", progress: 0 },
-      { id: "7", name: "Decision Coordinator", status: "pending", progress: 0 },
+      {
+        id: "6",
+        name: "Judge scores every option",
+        status: "pending",
+        progress: 0,
+      },
+      { id: "7", name: "Declare final winner", status: "pending", progress: 0 },
     ];
     setAnalysisSteps(steps);
     setCurrentStep(0);
@@ -90,15 +99,14 @@ export default function Home() {
           setDebateLogs(progress.logs);
         }
 
-        // 根据阶段更新步骤状态
         const stageToStep: { [key: string]: number } = {
-          deconstruction: 0,
-          dialectical: 1,
-          probability: 2,
-          timeline: 3,
-          multidimensional: 4,
-          risk: 5,
-          integration: 6,
+          clarify: 0,
+          optimist: 1,
+          skeptic: 2,
+          pragmatist: 3,
+          "future-self": 4,
+          judge: 5,
+          complete: 6,
         };
 
         const stepIndex = stageToStep[progress.stage];
@@ -157,13 +165,8 @@ export default function Home() {
   const handleStartNew = () => {
     setResults(null);
   };
-  const isChinese = i18n.language?.toLowerCase().startsWith("zh");
-  const heroTitle = isChinese
-    ? "智慧决策，预见未来"
-    : "Wise Decisions, Foresight for the Future";
-  const heroSubtitle = isChinese
-    ? "把复杂选择转化为清晰的选项排序、未来情景、风险缓释计划和可执行行动简报。"
-    : "Convert a messy, high-stakes choice into ranked options, future scenarios, mitigation plans, and a clean action brief.";
+  const heroTitle = t("optionHome.title");
+  const heroSubtitle = t("optionHome.subtitle");
 
   if (results) {
     return (
@@ -194,10 +197,10 @@ export default function Home() {
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary" className="gap-1">
                 <Sparkles className="h-3.5 w-3.5" />
-                Server-side DeepSeek v4
+                {t("optionHome.badge1")}
               </Badge>
-              <Badge variant="outline">Pro reasoning + Flash routing</Badge>
-              <Badge variant="outline">Report-grade synthesis</Badge>
+              <Badge variant="outline">{t("optionHome.badge2")}</Badge>
+              <Badge variant="outline">{t("optionHome.badge3")}</Badge>
             </div>
             <div>
               <h1 className="max-w-3xl text-4xl font-bold tracking-tight md:text-5xl">
@@ -211,7 +214,7 @@ export default function Home() {
           <Button variant="outline" asChild>
             <Link href="/history" className="gap-2">
               <History className="h-4 w-4" />
-              History
+              {t("nav.history")}
             </Link>
           </Button>
         </div>
@@ -226,8 +229,11 @@ export default function Home() {
             />
           </div>
         ) : (
-          <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_380px]">
-            <div className="min-w-0">
+          <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_340px]">
+            <div className="min-w-0 space-y-4">
+              <div className="rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground">
+                {t("optionHome.workflow")}
+              </div>
               <DecisionInputForm
                 onAnalyze={handleAnalyze}
                 isAnalyzing={isAnalyzing}
@@ -242,10 +248,10 @@ export default function Home() {
                   <div className="mb-5 flex items-center justify-between">
                     <div>
                       <div className="text-xs uppercase tracking-widest text-slate-400">
-                        Readiness
+                        {t("home.readiness")}
                       </div>
                       <div className="mt-1 text-2xl font-black">
-                        Decision OS
+                        {t("home.decisionOS")}
                       </div>
                     </div>
                     <div className="rounded-md bg-white/10 p-2">
@@ -254,7 +260,7 @@ export default function Home() {
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between text-xs text-slate-300">
-                      <span>Input clarity</span>
+                      <span>{t("home.inputClarity")}</span>
                       <span>84%</span>
                     </div>
                     <Progress value={84} className="h-2 bg-white/10" />
@@ -263,16 +269,17 @@ export default function Home() {
                 <div className="p-5">
                   <div className="mb-4 flex items-center gap-2">
                     <Brain className="h-5 w-5 text-primary" />
-                    <h2 className="font-semibold">Analysis Stack</h2>
+                    <h2 className="font-semibold">{t("home.analysisStack")}</h2>
                   </div>
                   <div className="space-y-4 text-sm">
                     <div className="flex gap-3">
                       <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                       <div>
-                        <div className="font-medium">Strategic reasoning</div>
+                        <div className="font-medium">
+                          {t("home.strategicReasoning")}
+                        </div>
                         <p className="text-muted-foreground">
-                          v4pro handles synthesis, debate, game theory, and the
-                          final recommendation.
+                          {t("home.strategicReasoningDesc")}
                         </p>
                       </div>
                     </div>
@@ -280,21 +287,21 @@ export default function Home() {
                       <Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                       <div>
                         <div className="font-medium">
-                          Fast structured passes
+                          {t("home.fastPasses")}
                         </div>
                         <p className="text-muted-foreground">
-                          v4flash handles probability, timeline, dimension, and
-                          risk extraction.
+                          {t("home.fastPassesDesc")}
                         </p>
                       </div>
                     </div>
                     <div className="flex gap-3">
                       <FileText className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                       <div>
-                        <div className="font-medium">Report-ready output</div>
+                        <div className="font-medium">
+                          {t("home.reportReady")}
+                        </div>
                         <p className="text-muted-foreground">
-                          Each run saves a recommendation, confidence score, and
-                          reusable history item.
+                          {t("home.reportReadyDesc")}
                         </p>
                       </div>
                     </div>
@@ -304,14 +311,12 @@ export default function Home() {
 
               <div className="rounded-lg border bg-muted/30 p-5">
                 <div className="mb-3 text-sm font-semibold">
-                  Good inputs produce better reports
+                  {t("home.goodInputs")}
                 </div>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>
-                    Include your real constraints, not just ideal outcomes.
-                  </li>
-                  <li>Compare concrete options instead of vague directions.</li>
-                  <li>Add success factors that matter personally to you.</li>
+                  <li>{t("home.tipConstraints")}</li>
+                  <li>{t("home.tipConcrete")}</li>
+                  <li>{t("home.tipPersonal")}</li>
                 </ul>
                 <Button
                   className="mt-5 w-full gap-2"
@@ -319,7 +324,7 @@ export default function Home() {
                   asChild
                 >
                   <Link href="/pricing">
-                    View plans
+                    {t("home.viewPlans")}
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
@@ -330,21 +335,21 @@ export default function Home() {
                   <Layers3 className="mb-2 h-4 w-4 text-primary" />
                   <div className="text-lg font-black">7</div>
                   <div className="text-[10px] uppercase text-muted-foreground">
-                    Agents
+                    {t("home.agents")}
                   </div>
                 </div>
                 <div className="rounded-lg border bg-card p-3">
                   <Route className="mb-2 h-4 w-4 text-primary" />
                   <div className="text-lg font-black">5y</div>
                   <div className="text-[10px] uppercase text-muted-foreground">
-                    Horizon
+                    {t("home.horizon")}
                   </div>
                 </div>
                 <div className="rounded-lg border bg-card p-3">
                   <ShieldCheck className="mb-2 h-4 w-4 text-primary" />
                   <div className="text-lg font-black">API</div>
                   <div className="text-[10px] uppercase text-muted-foreground">
-                    Protected
+                    {t("home.protected")}
                   </div>
                 </div>
               </div>

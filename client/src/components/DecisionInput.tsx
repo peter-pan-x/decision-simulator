@@ -1,41 +1,11 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Plus, Sparkles, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Check,
-  Plus,
-  X,
-  Sparkles,
-  Info,
-  Target,
-  Shield,
-  Clock,
-  Layers,
-  Wand2,
-} from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 export interface DecisionOption {
   id: string;
@@ -57,269 +27,162 @@ interface DecisionInputProps {
   isAnalyzing?: boolean;
 }
 
-const AVAILABLE_DIMENSIONS = [
-  "financial",
-  "career",
-  "lifestyle",
-  "relationships",
-  "health",
-  "time",
+const DEFAULT_DIMENSIONS = [
+  "fit",
+  "upside",
+  "risk",
+  "cost",
+  "reversibility",
+  "future_regret",
 ];
 
-const DECISION_TEMPLATES = [
-  {
-    label: "Career move",
-    decision:
-      "Should I leave my current job for a higher-growth opportunity with more uncertainty?",
-    options: [
-      "Stay in my current role",
-      "Accept the new opportunity",
-      "Negotiate a hybrid path",
-    ],
-    dimensions: ["financial", "career", "lifestyle", "health"],
-    timeframe: "medium",
-    riskProfile: "balanced",
-    factors: ["Protect downside income risk", "Preserve learning velocity"],
-  },
-  {
-    label: "Startup idea",
-    decision: "Should I turn this product idea into a full-time startup?",
-    options: [
-      "Keep it as a side project",
-      "Go full-time now",
-      "Validate with a paid pilot first",
-    ],
-    dimensions: ["financial", "career", "time", "relationships"],
-    timeframe: "long",
-    riskProfile: "aggressive",
-    factors: [
-      "Reach paying customers before overbuilding",
-      "Keep personal runway above 12 months",
-    ],
-  },
-  {
-    label: "Relocation",
-    decision:
-      "Should I relocate to a new city for better long-term opportunities?",
-    options: [
-      "Stay where I am",
-      "Move immediately",
-      "Try a 3-month test relocation",
-    ],
-    dimensions: ["financial", "career", "lifestyle", "relationships", "health"],
-    timeframe: "long",
-    riskProfile: "conservative",
-    factors: ["Avoid social isolation", "Keep housing costs predictable"],
-  },
-];
+const createOption = (index: number, description = ""): DecisionOption => ({
+  id: `option-${index}-${Date.now()}`,
+  description,
+});
 
 export default function DecisionInputForm({
   onAnalyze,
   isAnalyzing = false,
 }: DecisionInputProps) {
-  const { t } = useTranslation();
-  const [decision, setDecision] = useState("");
-  const [activeTemplate, setActiveTemplate] = useState<string | null>(null);
+  const { t, i18n } = useTranslation();
+  const isChinese = (i18n.resolvedLanguage || i18n.language)
+    .toLowerCase()
+    .startsWith("zh");
+  const [question, setQuestion] = useState("");
   const [options, setOptions] = useState<DecisionOption[]>([
-    { id: "1", description: "" },
-    { id: "2", description: "" },
+    { id: "option-a", description: "" },
+    { id: "option-b", description: "" },
   ]);
-  const [selectedDimensions, setSelectedDimensions] = useState<string[]>([
-    "financial",
-    "career",
-    "lifestyle",
-  ]);
-  const [timeframe, setTimeframe] = useState("medium");
-  const [riskProfile, setRiskProfile] = useState("balanced");
-  const [customFactors, setCustomFactors] = useState<string[]>([""]);
+
+  const updateOption = (id: string, description: string) => {
+    setOptions(current =>
+      current.map(option =>
+        option.id === id ? { ...option, description } : option
+      )
+    );
+  };
 
   const addOption = () => {
-    if (options.length < 5) {
-      setOptions([...options, { id: Date.now().toString(), description: "" }]);
-    }
+    if (options.length >= 5) return;
+    setOptions(current => [...current, createOption(current.length + 1)]);
   };
 
   const removeOption = (id: string) => {
-    if (options.length > 2) {
-      setOptions(options.filter(opt => opt.id !== id));
-    }
+    if (options.length <= 2) return;
+    setOptions(current => current.filter(option => option.id !== id));
   };
 
-  const updateOption = (id: string, description: string) => {
-    setActiveTemplate(null);
-    setOptions(
-      options.map(opt => (opt.id === id ? { ...opt, description } : opt))
-    );
-  };
-
-  const toggleDimension = (dimension: string) => {
-    setSelectedDimensions(prev =>
-      prev.includes(dimension)
-        ? prev.filter(d => d !== dimension)
-        : [...prev, dimension]
-    );
-  };
-
-  const addCustomFactor = () => {
-    if (customFactors.length < 5) {
-      setCustomFactors([...customFactors, ""]);
-    }
-  };
-
-  const removeCustomFactor = (index: number) => {
-    if (customFactors.length > 1) {
-      setCustomFactors(customFactors.filter((_, i) => i !== index));
-    }
-  };
-
-  const updateCustomFactor = (index: number, value: string) => {
-    setActiveTemplate(null);
-    setCustomFactors(customFactors.map((f, i) => (i === index ? value : f)));
-  };
-
-  const applyTemplate = (template: (typeof DECISION_TEMPLATES)[number]) => {
-    setActiveTemplate(template.label);
-    setDecision(template.decision);
-    setOptions(
-      template.options.map((description, index) => ({
-        id: `${template.label}-${index}`,
-        description,
-      }))
-    );
-    setSelectedDimensions(template.dimensions);
-    setTimeframe(template.timeframe);
-    setRiskProfile(template.riskProfile);
-    setCustomFactors(template.factors);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!decision.trim() || options.some(opt => !opt.description.trim())) {
+  const applyExample = () => {
+    if (isChinese) {
+      setQuestion("我应该继续做当前工作，还是全职投入自己的产品？");
+      setOptions([
+        { id: "option-a", description: "继续留在当前工作，业余时间做产品" },
+        { id: "option-b", description: "辞职，全职投入产品创业" },
+      ]);
       return;
     }
+
+    setQuestion(
+      "Should I stay in my current job or go full-time on my product?"
+    );
+    setOptions([
+      {
+        id: "option-a",
+        description: "Stay in my current job and build on the side",
+      },
+      { id: "option-b", description: "Quit and work full-time on the product" },
+    ]);
+  };
+
+  const completedOptions = options.filter(option => option.description.trim());
+  const canAnalyze = question.trim().length > 0 && completedOptions.length >= 2;
+  const helperText = !question.trim()
+    ? t("input.hints.describeDecision")
+    : completedOptions.length < 2
+      ? t("input.hints.completeOptions")
+      : t("input.hints.ready");
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!canAnalyze) return;
+
+    const cleanOptions = options
+      .map(option => ({ ...option, description: option.description.trim() }))
+      .filter(option => option.description);
+
     onAnalyze({
-      question: decision,
-      decision,
-      options,
-      dimensions: selectedDimensions,
-      customFactors: customFactors.filter(f => f.trim() !== ""),
-      timeframe,
-      riskProfile,
+      question: question.trim(),
+      decision: question.trim(),
+      options: cleanOptions,
+      dimensions: DEFAULT_DIMENSIONS,
+      customFactors: [],
+      timeframe: "medium",
+      riskProfile: "balanced",
     });
   };
 
-  const isValid =
-    decision.trim() &&
-    options.every(opt => opt.description.trim()) &&
-    selectedDimensions.length > 0;
-  const completedOptions = options.filter(opt => opt.description.trim()).length;
-  const inputQuality = Math.min(
-    100,
-    Math.round(
-      (decision.trim() ? 34 : 0) +
-        (completedOptions / Math.max(options.length, 1)) * 33 +
-        Math.min(selectedDimensions.length / 4, 1) * 23 +
-        (customFactors.some(factor => factor.trim()) ? 10 : 0)
-    )
-  );
-  const submitHint = !decision.trim()
-    ? "Describe the decision first"
-    : completedOptions < options.length
-      ? "Complete every comparison option"
-      : selectedDimensions.length === 0
-        ? "Select at least one dimension"
-        : "Ready for simulation";
-
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500"
-    >
-      <div className="space-y-2 text-center mb-8">
-        <h2 className="text-3xl font-bold tracking-tight">Strategic Input</h2>
-        <p className="text-muted-foreground">
-          Define your decision parameters for deep AI simulation
-        </p>
-      </div>
-
-      <div className="rounded-lg border bg-muted/30 p-4">
-        <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
-          <Wand2 className="h-4 w-4 text-primary" />
-          Quick starts
-        </div>
-        <div className="grid gap-2 sm:grid-cols-3">
-          {DECISION_TEMPLATES.map(template => (
-            <Button
-              key={template.label}
-              type="button"
-              variant={
-                activeTemplate === template.label ? "default" : "outline"
-              }
-              size="sm"
-              onClick={() => applyTemplate(template)}
-              disabled={isAnalyzing}
-              className="justify-start transition-all hover:-translate-y-0.5"
-            >
-              {template.label}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid gap-8">
-        {/* Section 1: Core Decision */}
-        <Card className="border-primary/10 shadow-sm">
-          <CardHeader className="pb-4">
-            <div className="flex items-center gap-2 text-primary mb-1">
-              <Target className="h-5 w-5" />
-              <span className="text-xs font-bold uppercase tracking-wider">
-                Phase 1
-              </span>
-            </div>
-            <CardTitle>Core Decision & Options</CardTitle>
-            <CardDescription>
-              What is the primary choice you are facing?
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="decision" className="text-sm font-semibold">
-                Decision Description
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <Card className="border-primary/15 shadow-sm">
+        <CardContent className="space-y-6 p-5 sm:p-6">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <Label
+                htmlFor="decision-question"
+                className="text-base font-bold"
+              >
+                {t("optionInput.questionLabel")}
               </Label>
-              <Textarea
-                id="decision"
-                placeholder="e.g., Should I leave my stable corporate job to start a FinTech startup?"
-                value={decision}
-                onChange={e => {
-                  setActiveTemplate(null);
-                  setDecision(e.target.value);
-                }}
-                className="min-h-24 resize-none focus:ring-primary"
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={applyExample}
                 disabled={isAnalyzing}
-              />
+                className="h-8 px-2 text-xs"
+              >
+                {t("optionInput.example")}
+              </Button>
+            </div>
+            <Textarea
+              id="decision-question"
+              value={question}
+              onChange={event => setQuestion(event.target.value)}
+              placeholder={t("optionInput.questionPlaceholder")}
+              disabled={isAnalyzing}
+              className="min-h-24 resize-none text-base"
+            />
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-base font-bold">
+                {t("optionInput.optionsLabel")}
+              </Label>
+              <span className="text-xs text-muted-foreground">
+                {completedOptions.length}/{options.length} {t("input.ready")}
+              </span>
             </div>
 
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-semibold">
-                  Options to Compare
-                </Label>
-                <span className="text-[10px] text-muted-foreground uppercase">
-                  {completedOptions}/{options.length} ready
-                </span>
-              </div>
-              <div className="space-y-3">
-                {options.map((option, index) => (
-                  <div key={option.id} className="flex gap-2 group">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border bg-muted/50 text-xs font-bold">
-                      {index + 1}
+              {options.map((option, index) => {
+                const label = String.fromCharCode(65 + index);
+                return (
+                  <div key={option.id} className="flex gap-2">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-primary text-sm font-black text-primary-foreground">
+                      {label}
                     </div>
                     <Input
-                      placeholder={`Option ${index + 1} description...`}
                       value={option.description}
-                      onChange={e => updateOption(option.id, e.target.value)}
+                      onChange={event =>
+                        updateOption(option.id, event.target.value)
+                      }
+                      placeholder={t("optionInput.optionPlaceholder", {
+                        label,
+                      })}
                       disabled={isAnalyzing}
-                      className="focus:ring-primary"
+                      className="h-11 text-base"
                     />
                     {options.length > 2 && (
                       <Button
@@ -328,236 +191,42 @@ export default function DecisionInputForm({
                         size="icon"
                         onClick={() => removeOption(option.id)}
                         disabled={isAnalyzing}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        aria-label={t("optionInput.removeOption")}
                       >
-                        <X className="h-4 w-4 text-destructive" />
+                        <Trash2 className="h-4 w-4 text-muted-foreground" />
                       </Button>
                     )}
                   </div>
-                ))}
-              </div>
-              {options.length < 5 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={addOption}
-                  disabled={isAnalyzing}
-                  className="w-full border-dashed"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Comparison Option
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Section 2: Analysis Dimensions */}
-        <Card className="border-primary/10 shadow-sm">
-          <CardHeader className="pb-4">
-            <div className="flex items-center gap-2 text-primary mb-1">
-              <Layers className="h-5 w-5" />
-              <span className="text-xs font-bold uppercase tracking-wider">
-                Phase 2
-              </span>
-            </div>
-            <CardTitle>Analysis Dimensions</CardTitle>
-            <CardDescription>
-              Select the areas of life this decision will impact most
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {AVAILABLE_DIMENSIONS.map(dimension => {
-                const isSelected = selectedDimensions.includes(dimension);
-                return (
-                  <button
-                    key={dimension}
-                    type="button"
-                    aria-pressed={isSelected}
-                    disabled={isAnalyzing}
-                    className={`group flex min-h-14 items-center gap-3 rounded-lg border p-3 text-left transition-all ${
-                      isSelected
-                        ? "border-primary bg-primary/5 shadow-sm ring-1 ring-primary/20"
-                        : "hover:-translate-y-0.5 hover:bg-muted"
-                    } disabled:pointer-events-none disabled:opacity-60`}
-                    onClick={() => toggleDimension(dimension)}
-                  >
-                    <span
-                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors ${
-                        isSelected
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "bg-background"
-                      }`}
-                    >
-                      {isSelected && <Check className="h-3.5 w-3.5" />}
-                    </span>
-                    <span className="text-sm font-medium capitalize">
-                      {dimension}
-                    </span>
-                  </button>
                 );
               })}
             </div>
 
-            <div className="space-y-3 pt-4 border-t">
-              <div className="flex items-center gap-2">
-                <Label className="text-sm font-semibold">
-                  Custom Success Factors
-                </Label>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="text-xs max-w-xs">
-                        Add specific goals or constraints unique to your
-                        situation (e.g., "Must allow for remote work")
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <div className="space-y-2">
-                {customFactors.map((factor, index) => (
-                  <div key={index} className="flex gap-2">
-                    <Input
-                      placeholder="Specific factor or constraint..."
-                      value={factor}
-                      onChange={e => updateCustomFactor(index, e.target.value)}
-                      disabled={isAnalyzing}
-                      className="flex-1 text-sm"
-                    />
-                    {customFactors.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeCustomFactor(index)}
-                        disabled={isAnalyzing}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-                {customFactors.length < 5 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={addCustomFactor}
-                    disabled={isAnalyzing}
-                    className="text-xs text-primary hover:bg-primary/5"
-                  >
-                    <Plus className="h-3 w-3 mr-1" />
-                    Add Custom Factor
-                  </Button>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Section 3: Parameters */}
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card className="border-primary/10 shadow-sm">
-            <CardHeader className="pb-4">
-              <div className="flex items-center gap-2 text-primary mb-1">
-                <Clock className="h-5 w-5" />
-                <span className="text-xs font-bold uppercase tracking-wider">
-                  Phase 3
-                </span>
-              </div>
-              <CardTitle>Time Horizon</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Select
-                value={timeframe}
-                onValueChange={setTimeframe}
+            {options.length < 5 && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={addOption}
                 disabled={isAnalyzing}
+                className="w-full border-dashed"
               >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="short">Short Term (0-1 Year)</SelectItem>
-                  <SelectItem value="medium">
-                    Medium Term (1-5 Years)
-                  </SelectItem>
-                  <SelectItem value="long">Long Term (5-10+ Years)</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-[10px] text-muted-foreground mt-3 italic">
-                Determines the depth of temporal simulation and causal chain
-                tracing.
-              </p>
-            </CardContent>
-          </Card>
+                <Plus className="h-4 w-4" />
+                {t("optionInput.addOption")}
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
-          <Card className="border-primary/10 shadow-sm">
-            <CardHeader className="pb-4">
-              <div className="flex items-center gap-2 text-primary mb-1">
-                <Shield className="h-5 w-5" />
-                <span className="text-xs font-bold uppercase tracking-wider">
-                  Phase 4
-                </span>
-              </div>
-              <CardTitle>Risk Tolerance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Select
-                value={riskProfile}
-                onValueChange={setRiskProfile}
-                disabled={isAnalyzing}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="conservative">
-                    Conservative (Risk Averse)
-                  </SelectItem>
-                  <SelectItem value="balanced">Balanced (Prudent)</SelectItem>
-                  <SelectItem value="aggressive">
-                    Aggressive (Opportunity Focused)
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-[10px] text-muted-foreground mt-3 italic">
-                Influences the weighting of downside risks vs. upside potential
-                in the final report.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      <div className="pt-6">
-        <Button
-          type="submit"
-          size="lg"
-          className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.99]"
-          disabled={!isValid || isAnalyzing}
-        >
-          {isAnalyzing ? (
-            <div className="flex items-center gap-3">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-              Initializing AI Agents...
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-6 w-6" />
-              Run Strategic Simulation
-            </div>
-          )}
-        </Button>
-        <p className="text-center text-[10px] text-muted-foreground mt-4 uppercase tracking-widest">
-          {submitHint} • Input quality {inputQuality}% • Multi-Agent Synthesis
-        </p>
-      </div>
+      <Button
+        type="submit"
+        size="lg"
+        disabled={!canAnalyze || isAnalyzing}
+        className="h-14 w-full text-base font-black shadow-lg shadow-primary/15"
+      >
+        <Sparkles className="h-5 w-5" />
+        {t("optionInput.analyze")}
+      </Button>
+      <p className="text-center text-xs text-muted-foreground">{helperText}</p>
     </form>
   );
 }
